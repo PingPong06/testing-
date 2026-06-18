@@ -1,0 +1,52 @@
+import axios from "axios";
+
+const API = axios.create({
+  baseURL: "http://localhost:5000",
+});
+
+export const getDashboardStats = () =>
+  API.get("/dashboard");
+
+export const addProduct = (data) =>
+  API.post("/products", data);
+
+export const deleteProduct = (id) =>
+  API.delete(`/products/${id}`);
+
+export const getHistory = () =>
+  API.get("/inventory/history");
+
+export const getProducts = (search = "") =>
+  API.get(`/products?search=${search}`);
+
+export const updateProduct = (id, data) =>
+  API.put(`/products/${id}`, data);
+
+export const getActivityHistory = () =>
+  API.get("/inventory/activity-history");
+
+export const stockIn = (data) =>
+  API.post("/inventory/in", data);
+
+export const stockOut = (data) =>
+  API.post("/inventory/out", data);
+
+export const getTransactionHistory = () =>
+  API.get("/inventory/history");
+
+export const getReportData = (filters) =>
+  API.get("/reports", {
+    params: filters,
+  });
+
+  export const downloadReportPDF = (filters) =>
+  API.get("/reports/pdf", {
+    params: filters,
+    responseType: "blob",
+  });
+
+  export const downloadReportExcel = (filters) =>
+  API.get("/reports/excel", {
+    params: filters,
+    responseType: "blob",
+  });
