@@ -96,6 +96,8 @@ function Reports() {
 
       const response = await getReportData(filters);
 
+      console.log(response.data);
+
       setReportData(response.data);
     } catch (error) {
       console.error(error);
@@ -147,7 +149,8 @@ function Reports() {
 
         size: selectedSize?.value || "",
 
-        transactionType: selectedTransactionType?.value || "",
+        transactionType:
+          transactionType?.value || "",
 
         fromDate,
         toDate,
@@ -201,7 +204,7 @@ function Reports() {
             options={sizes}
             value={selectedSize}
             onChange={setSelectedSize}
-            placeholder="Select Size (Optional)"
+            placeholder="Select Size (in mm) (Optional)"
             isSearchable
           />
 
@@ -320,6 +323,8 @@ function Reports() {
                     <th className="text-left p-2">Type</th>
 
                     <th className="text-left p-2">Quantity</th>
+
+                    <th className="text-left p-2">Performed By</th>
                   </tr>
                 </thead>
 
@@ -339,6 +344,8 @@ function Reports() {
                       <td className="p-2">{row.transaction_type}</td>
 
                       <td className="p-2">{row.quantity}</td>
+
+                      <td className="p-2">{row.performed_by}</td>
                     </tr>
                   ))}
                 </tbody>

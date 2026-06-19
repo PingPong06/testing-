@@ -78,6 +78,8 @@ const pool = require("../config/db");
 const getAllProducts = async (req, res) => {
   try {
 
+    console.log("GET ALL PRODUCTS HIT");
+
     const { search } = req.query;
 
     let query = `
@@ -135,9 +137,24 @@ const getAllProducts = async (req, res) => {
     `;
 
     const result =
-      await pool.query(query, values);
+  await pool.query(query, values);
 
-    res.json(result.rows);
+const products = result.rows;
+
+console.log(req.user);
+console.log(req.user.role);
+
+if (req.user.role !== "ADMIN") {
+
+  products.forEach((product) => {
+
+    delete product.unit_price;
+
+  });
+
+}
+
+res.json(products);
 
   } catch (err) {
 

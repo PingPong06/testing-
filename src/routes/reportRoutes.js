@@ -2,6 +2,8 @@ const express = require("express");
 // const PDFDocument = require("pdfkit");
 
 const router = express.Router();
+const verifyToken =
+  require("../middleware/authMiddleware");
 
 const {
   getReportData,
@@ -9,10 +11,11 @@ const {
   downloadReportExcel,
 } = require("../controllers/reportController");
 
-router.get("/", getReportData);
-router.get("/pdf", downloadReportPDF);
+router.get("/",verifyToken, getReportData);
+router.get("/pdf",verifyToken, downloadReportPDF);
 router.get(
   "/excel",
+  verifyToken,
   downloadReportExcel
 );
 

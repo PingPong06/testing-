@@ -7,7 +7,7 @@ const stockIn = async (req, res) => {
   try {
     console.log(req.body);
 
-    const { product_id, quantity, remarks } = req.body;
+    const { product_id, quantity, remarks,performed_by, } = req.body;
 
     const product = await pool.query(
   `
@@ -30,25 +30,32 @@ if (product.rows.length === 0) {
 }
 
     const result = await pool.query(
-      `
-      INSERT INTO inventory_transactions
-      (
-        product_id,
-        transaction_type,
-        quantity,
-        remarks
-      )
-      VALUES
-      (
-        $1,
-        'IN',
-        $2,
-        $3
-      )
-      RETURNING *
-      `,
-      [product_id, quantity, remarks],
-    );
+  `
+  INSERT INTO inventory_transactions
+  (
+    product_id,
+    transaction_type,
+    quantity,
+    remarks,
+    performed_by
+  )
+  VALUES
+  (
+    $1,
+    'IN',
+    $2,
+    $3,
+    $4
+  )
+  RETURNING *
+  `,
+  [
+    product_id,
+    quantity,
+    remarks,
+    performed_by,
+  ]
+);
 
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -64,7 +71,7 @@ if (product.rows.length === 0) {
 
 const stockOut = async (req, res) => {
   try {
-    const { product_id, quantity, remarks } = req.body;
+    const { product_id, quantity, remarks, performed_by, } = req.body;
 
     const stockResult = await pool.query(
       `
@@ -97,22 +104,29 @@ const stockOut = async (req, res) => {
     const result = await pool.query(
       `
       INSERT INTO inventory_transactions
-      (
-        product_id,
-        transaction_type,
-        quantity,
-        remarks
-      )
-      VALUES
-      (
-        $1,
-        'OUT',
-        $2,
-        $3
-      )
-      RETURNING *
+(
+  product_id,
+  transaction_type,
+  quantity,
+  remarks,
+  performed_by
+)
+VALUES
+(
+  $1,
+  'OUT',
+  $2,
+  $3,
+  $4
+)
+RETURNING *
     `,
-      [product_id, quantity, remarks],
+      [
+  product_id,
+  quantity,
+  remarks,
+  performed_by,
+],
     );
 
     res.status(201).json(result.rows[0]);

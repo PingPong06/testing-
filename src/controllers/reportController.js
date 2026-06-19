@@ -4,6 +4,7 @@ const PDFDocument = require("pdfkit");
 const ExcelJS = require("exceljs");
 
 const buildReportQuery = (filters) => {
+  // console.log(response.data);
   const {
     brand,
     pipeType,
@@ -24,6 +25,7 @@ const buildReportQuery = (filters) => {
       t.transaction_type,
       t.quantity,
       t.remarks,
+      t.performed_by,
       t.transaction_date
 
     FROM inventory_transactions t
@@ -128,7 +130,6 @@ const getReportData = async (req, res) => {
 
 const downloadReportPDF = async (req, res) => {
   try {
-
     console.log(req.query);
     const { query, values } = buildReportQuery(req.query);
 
@@ -138,7 +139,8 @@ const downloadReportPDF = async (req, res) => {
       req.query;
 
     const doc = new PDFDocument({
-      margin: 40,
+      margin: 30,
+      layout: "landscape",
     });
 
     res.setHeader("Content-Type", "application/pdf");
@@ -186,19 +188,24 @@ const downloadReportPDF = async (req, res) => {
 
     /* TABLE */
 
-    doc.font("Courier").fontSize(10);
+    doc.font("Helvetica-Bold").fontSize(10);
 
-    doc.text(
-      "Date".padEnd(22) +
-        "Brand".padEnd(15) +
-        "Pipe Type".padEnd(15) +
-        "Size".padEnd(10) +
-        "Txn".padEnd(8) +
-        "Qty".padEnd(8) +
-        "Remarks",
-    );
+    let y = doc.y;
 
-    doc.text("-".repeat(95));
+    doc.text("Date", 40, y);
+    doc.text("Brand", 150, y);
+    doc.text("Type", 240, y);
+    doc.text("Size", 330, y);
+    doc.text("Txn", 390, y);
+    doc.text("Qty", 450, y);
+    doc.text("User", 490, y);
+    doc.text("Remarks", 540, y);
+
+    y += 20;
+
+    doc.moveTo(40, y).lineTo(580, y).stroke();
+
+    y = doc.y + 20;
 
     result.rows.forEach((row) => {
       const date = new Date(row.transaction_date).toLocaleString("en-IN", {
@@ -209,19 +216,33 @@ const downloadReportPDF = async (req, res) => {
         minute: "2-digit",
       });
 
-      doc.text(
-        date.padEnd(22) +
-          String(row.brand).padEnd(15) +
-          String(row.pipe_type).padEnd(15) +
-          String(row.size).padEnd(10) +
-          (row.transaction_type === "IN" ? "Stock In" : "Stock Out").padEnd(
-            12,
-          ) +
-          String(row.quantity).padEnd(8) +
-          String(row.remarks || "-"),
-      );
-    });
+      doc.font("Helvetica").fontSize(9);
 
+      doc.text(date, 40, y, {
+        width: 100,
+      });
+
+      doc.text(String(row.brand), 150, y, { width: 80 });
+
+      doc.text(String(row.pipe_type), 240, y, { width: 80 });
+
+      doc.text(String(row.size), 330, y, { width: 50 });
+
+      doc.text(
+        row.transaction_type === "IN" ? "Stock In" : "Stock Out",
+        390,
+        y,
+        { width: 60 },
+      );
+
+      doc.text(String(row.quantity), 450, y, { width: 35 });
+
+      doc.text(String(row.performed_by || "-"), 490, y, { width: 45 });
+
+      doc.text(String(row.remarks || "-"), 540, y, { width: 50 });
+
+      y += 20;
+    });
     doc.end();
   } catch (error) {
     console.error(error);
@@ -274,6 +295,11 @@ const downloadReportExcel = async (req, res) => {
         width: 15,
       },
       {
+        header: "Performed By",
+        key: "performed_by",
+        width: 20,
+      },
+      {
         header: "Remarks",
         key: "remarks",
         width: 30,
@@ -281,19 +307,16 @@ const downloadReportExcel = async (req, res) => {
     ];
 
     result.rows.forEach((row) => {
+      const date = new Date(row.transaction_date).toLocaleDateString("en-IN");
+
       worksheet.addRow({
-        date: new Date(row.transaction_date).toLocaleString("en-IN"),
-
+        date,
         brand: row.brand,
-
         pipe_type: row.pipe_type,
-
         size: row.size,
-
         transaction_type: row.transaction_type,
-
         quantity: row.quantity,
-
+        performed_by: row.performed_by || "-",
         remarks: row.remarks || "-",
       });
     });

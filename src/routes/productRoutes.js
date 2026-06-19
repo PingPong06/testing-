@@ -1,23 +1,46 @@
-const express = require('express');
-const router = express.Router();
+  const express = require('express');
+  const router = express.Router();
 
-const {
-  createProduct,
-  getAllProducts,
-  getProductById,
-  updateProduct,
-  deleteProduct,
-  // searchProducts
-} = require('../controllers/productController');
+  const verifyToken =
+    require("../middleware/authMiddleware");
 
-router.post('/', createProduct);
+  const {
+    createProduct,
+    getAllProducts,
+    getProductById,
+    updateProduct,
+    deleteProduct,
+    // searchProducts
+  } = require('../controllers/productController');
 
-router.get('/', getAllProducts);
+  router.post(
+    '/',
+    verifyToken,
+    createProduct
+  );
 
-router.get('/:id', getProductById);
+  router.get(
+    '/',
+    verifyToken,
+    getAllProducts
+  );
 
-router.put('/:id', updateProduct);
+  router.get(
+    '/:id',
+    verifyToken,
+    getProductById
+  );
 
-router.delete('/:id', deleteProduct);
+  router.put(
+    '/:id',
+    verifyToken,
+    updateProduct
+  );
 
-module.exports = router;
+  router.delete(
+    '/:id',
+    verifyToken,
+    deleteProduct
+  );
+
+  module.exports = router;

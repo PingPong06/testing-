@@ -9,7 +9,8 @@ const dashboardRoutes =
 require('./routes/dashboardRoutes');
 const reportRoutes =
 require('./routes/reportRoutes');
-
+const authRoutes =
+require("./routes/authRoutes");
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use('/products', productRoutes);
 app.use('/inventory', inventoryRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/reports', reportRoutes);
+app.use("/auth", authRoutes);
 
 
 module.exports = app;

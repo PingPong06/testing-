@@ -1,26 +1,52 @@
-const express = require('express');
+  const express = require('express');
 
-const router = express.Router();
+  const verifyToken =
+    require("../middleware/authMiddleware");
 
-const {
-  stockIn,
-  stockOut,
-  getInventorySummary,
-  getTransactionHistory,
-  getLowStockItems,
-  getInventoryHistory
-} = require('../controllers/inventoryController');
+  const router = express.Router();
 
-router.post('/in', stockIn);
+  const {
+    stockIn,
+    stockOut,
+    getInventorySummary,
+    getTransactionHistory,
+    getLowStockItems,
+    getInventoryHistory
+  } = require('../controllers/inventoryController');
 
-router.post('/out', stockOut);
+  router.post(
+    "/in",
+    verifyToken,
+    stockIn
+  );
 
-router.get('/', getInventorySummary);
+  router.post(
+    "/out",
+    verifyToken,
+    stockOut
+  );
 
-router.get('/history', getTransactionHistory);
+  router.get(
+    "/",
+    verifyToken,
+    getInventorySummary
+  );
 
-router.get('/low-stock', getLowStockItems);
+  router.get(
+    "/history",
+    verifyToken,
+    getTransactionHistory
+  );
 
-router.get('/activity-history', getInventoryHistory);
+  router.get(
+    "/low-stock",
+    verifyToken,
+    getLowStockItems
+  );
 
-module.exports = router;
+  router.get(
+    "/activity-history",
+    verifyToken,
+    getInventoryHistory
+  );
+  module.exports = router;

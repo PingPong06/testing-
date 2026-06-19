@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 
 import SearchBar from "../components/SearchBar";
 import ProductTable from "../components/ProductTable";
+import { login } from "../services/api";
 
 import {
   getProducts,
@@ -119,10 +120,13 @@ function Inventory() {
   const handleStockSubmit = async () => {
     try {
       const data = {
-        product_id: selectedProduct.id,
-        quantity: Number(quantity),
-        remarks,
-      };
+  product_id: selectedProduct.id,
+  quantity: Number(quantity),
+  remarks,
+  performed_by: localStorage.getItem("username"),
+};
+
+        console.log(data);
 
       if (stockAction === "IN") {
         await stockIn(data);
@@ -149,6 +153,46 @@ function Inventory() {
       alert(error.response?.data?.message || "Transaction Failed");
     }
   };
+
+//   // const response = await login({
+//   // username,
+//   // password,
+// });
+
+// const handleLogin = async (e) => {
+
+//   e.preventDefault();
+
+//   try {
+
+//     const response = await login({
+//       username,
+//       password,
+//     });
+
+//     localStorage.setItem(
+//       "token",
+//       response.data.token
+//     );
+
+//     console.log("TOKEN SAVED");
+
+//     window.alert(
+//       "Login Successful"
+//     );
+
+//   } catch (error) {
+
+//     window.alert(
+//       error.response?.data?.message ||
+//       "Login Failed"
+//     );
+
+//     console.error(error);
+
+//   }
+
+// };
 
   return (
     <div className="p-8">

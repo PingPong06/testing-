@@ -8,11 +8,12 @@ import History from "./pages/History";
 import TransactionHistory from "./pages/TransactionHistory";
 import Navbar from "./components/Navbar";
 import Reports from "./pages/Reports";
+import Login from "./pages/Login";
 
 function App() {
   return (
     <BrowserRouter>
-    <Navbar/>
+      <Navbar />
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/inventory" element={<Inventory />} />
@@ -21,6 +22,7 @@ function App() {
         <Route path="/history" element={<History />} />
         <Route path="/transactions" element={<TransactionHistory />} />
         <Route path="/reports" element={<Reports />} />
+        <Route path="/admin/login" element={<Login />} />
       </Routes>
     </BrowserRouter>
   );

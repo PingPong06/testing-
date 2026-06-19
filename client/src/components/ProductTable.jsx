@@ -1,19 +1,25 @@
 function ProductTable({ products, onDelete, onEdit, onStockIn, onStockOut }) {
+  console.log("PRODUCT TABLE LOADED");
+
+  const isAdmin = !!localStorage.getItem("token");
+
+  console.log("isAdmin =", isAdmin);
+
   return (
     <table className="w-full bg-white rounded-xl shadow-md overflow-hidden">
       <thead className="bg-gray-100">
         <tr>
           <th className="p-4 text-left">Brand</th>
-          <th className="p-4 text-left">Size</th>
+          <th className="p-4 text-left">Size (in mm)</th>
           <th className="p-4 text-left">Pipe Type</th>
           <th className="p-4 text-left">Current Stock</th>
           <th className="p-4 text-left">Unit</th>
 
-<th className="p-4 text-left">Min Stock</th>
+          <th className="p-4 text-left">Min Stock</th>
 
-<th className="p-4 text-left">Unit Price</th>
+          {isAdmin && <th className="p-4 text-left">Unit Price</th>}
 
-<th className="p-4 text-left">Total Value</th>
+          {isAdmin && <th className="p-4 text-left">Total Value</th>}
           <th className="p-4 text-left">Action</th>
         </tr>
       </thead>
@@ -35,26 +41,35 @@ function ProductTable({ products, onDelete, onEdit, onStockIn, onStockOut }) {
               )}
             </td>
 
-            <td className="p-4">
-  {product.unit}
-</td>
+            {isAdmin && (
+              <td className="p-4">
+                ₹{Number(product.unit_price).toLocaleString()}
+              </td>
+            )}
 
-<td className="p-4">
-  {product.min_stock}
-</td>
+            {isAdmin && (
+              <td className="p-4">
+                ₹
+                {(
+                  Number(product.unit_price) * Number(product.current_stock)
+                ).toLocaleString()}
+              </td>
+            )}
 
-<td className="p-4">
-  ₹{Number(product.unit_price).toLocaleString()}
-</td>
+            {isAdmin && (
+              <td className="p-4">
+                ₹{Number(product.unit_price).toLocaleString()}
+              </td>
+            )}
 
-<td className="p-4 font-semibold text-green-700">
-  ₹{
-    (
-      Number(product.current_stock) *
-      Number(product.unit_price)
-    ).toLocaleString()
-  }
-</td>
+            {isAdmin && (
+              <td className="p-4">
+                ₹
+                {(
+                  Number(product.unit_price) * Number(product.current_stock)
+                ).toLocaleString()}
+              </td>
+            )}
 
             <td>
               <button
