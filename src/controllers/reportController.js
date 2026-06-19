@@ -130,7 +130,7 @@ const getReportData = async (req, res) => {
 
 const downloadReportPDF = async (req, res) => {
   try {
-    console.log(req.query);
+    // console.log(req.query);
     const { query, values } = buildReportQuery(req.query);
 
     const result = await pool.query(query, values);

@@ -1,9 +1,9 @@
 function ProductTable({ products, onDelete, onEdit, onStockIn, onStockOut }) {
-  console.log("PRODUCT TABLE LOADED");
+  // console.log("PRODUCT TABLE LOADED");
 
   const isAdmin = !!localStorage.getItem("token");
 
-  console.log("isAdmin =", isAdmin);
+  // console.log("isAdmin =", isAdmin);
 
   return (
     <table className="w-full bg-white rounded-xl shadow-md overflow-hidden">

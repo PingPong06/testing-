@@ -96,7 +96,7 @@ function Reports() {
 
       const response = await getReportData(filters);
 
-      console.log(response.data);
+      // console.log(response.data);
 
       setReportData(response.data);
     } catch (error) {

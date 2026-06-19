@@ -41,7 +41,7 @@ function Inventory() {
     try {
       const response = await getProducts(search);
 
-      console.log("Inventory Data:", response.data);
+      // console.log("Inventory Data:", response.data);
 
       setProducts(response.data);
     } catch (error) {
@@ -126,7 +126,7 @@ function Inventory() {
   performed_by: localStorage.getItem("username"),
 };
 
-        console.log(data);
+        // console.log(data);
 
       if (stockAction === "IN") {
         await stockIn(data);

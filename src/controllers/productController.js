@@ -2,31 +2,28 @@ const pool = require("../config/db");
 
 // Create Products
 
-  const createProduct = async (req, res) => {
-    try {
+const createProduct = async (req, res) => {
+  try {
+    // console.log(req.body);
+    const { brand, size, pipe_type, min_stock, unit_price } = req.body;
+    const brandValue = brand.trim().toLowerCase();
 
-      console.log(req.body);
-      const { brand, size, pipe_type, min_stock, unit_price} = req.body;
-      const brandValue =
-    brand.trim().toLowerCase();
+    const pipeTypeValue = pipe_type.trim().toLowerCase();
 
-  const pipeTypeValue =
-    pipe_type.trim().toLowerCase();
+    if (
+      !brand ||
+      !size ||
+      !pipe_type ||
+      min_stock === "" ||
+      unit_price === ""
+    ) {
+      return res.status(400).json({
+        message: "All fields are required",
+      });
+    }
 
-      if (
-    !brand ||
-    !size ||
-    !pipe_type ||
-    min_stock === "" ||
-    unit_price === ""
-  ) {
-    return res.status(400).json({
-      message: "All fields are required",
-    });
-  }
-
-      const result = await pool.query(
-  `
+    const result = await pool.query(
+      `
   INSERT INTO products
   (
     brand,
@@ -38,16 +35,10 @@ const pool = require("../config/db");
   VALUES ($1,$2,$3,$4,$5)
   RETURNING *
   `,
-  [
-    brandValue,
-    size,
-    pipeTypeValue,
-    Number(min_stock),
-    Number(unit_price),
-  ],
-);
-      await pool.query(
-        `
+      [brandValue, size, pipeTypeValue, Number(min_stock), Number(unit_price)],
+    );
+    await pool.query(
+      `
   INSERT INTO inventory_history
   (
       product_id,
@@ -61,24 +52,30 @@ const pool = require("../config/db");
       $3
   )
   `,
-        [result.rows[0].id, "CREATE", `Created ${brand}`],
-      );
+      [result.rows[0].id, "CREATE", `Created ${brand}`],
+    );
 
-      res.status(201).json(result.rows[0]);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({
-        message: "Error creating product",
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    if (error.code === "23505") {
+      return res.status(400).json({
+        message: "Product already exists",
       });
     }
-  };
+
+    console.error(error);
+
+    res.status(500).json({
+      message: "Error creating product",
+    });
+  }
+};
 
 // Get all products
 
 const getAllProducts = async (req, res) => {
   try {
-
-    console.log("GET ALL PRODUCTS HIT");
+    // console.log("GET ALL PRODUCTS HIT");
 
     const { search } = req.query;
 
@@ -112,7 +109,6 @@ const getAllProducts = async (req, res) => {
     let values = [];
 
     if (search) {
-
       query += `
         WHERE
         LOWER(p.brand) LIKE LOWER($1)
@@ -136,34 +132,26 @@ const getAllProducts = async (req, res) => {
       ORDER BY p.id
     `;
 
-    const result =
-  await pool.query(query, values);
+    const result = await pool.query(query, values);
 
-const products = result.rows;
+    const products = result.rows;
 
-console.log(req.user);
-console.log(req.user.role);
+    // console.log(req.user);
+    // console.log(req.user.role);
 
-if (req.user.role !== "ADMIN") {
+    if (req.user.role !== "ADMIN") {
+      products.forEach((product) => {
+        delete product.unit_price;
+      });
+    }
 
-  products.forEach((product) => {
-
-    delete product.unit_price;
-
-  });
-
-}
-
-res.json(products);
-
+    res.json(products);
   } catch (err) {
-
     console.error(err);
 
     res.status(500).json({
       message: "Server Error",
     });
-
   }
 };
 
@@ -206,11 +194,9 @@ const updateProduct = async (req, res) => {
 
     const { brand, size, pipe_type, min_stock, unit_price } = req.body;
 
-    const brandValue =
-  brand.trim().toLowerCase();
+    const brandValue = brand.trim().toLowerCase();
 
-const pipeTypeValue =
-  pipe_type.trim().toLowerCase();
+    const pipeTypeValue = pipe_type.trim().toLowerCase();
 
     const result = await pool.query(
       `
@@ -224,18 +210,11 @@ const pipeTypeValue =
       WHERE id = $6
       RETURNING *
       `,
-      [
-  brandValue,
-  size,
-  pipeTypeValue,
-  min_stock,
-  unit_price,
-  id,
-],
+      [brandValue, size, pipeTypeValue, min_stock, unit_price, id],
     );
 
     await pool.query(
-`
+      `
 INSERT INTO inventory_history
 (
     product_id,
@@ -249,12 +228,8 @@ VALUES
     $3
 )
 `,
-[
-    id,
-    'UPDATE',
-    `Updated ${brandValue}`
-]
-);
+      [id, "UPDATE", `Updated ${brandValue}`],
+    );
 
     if (result.rows.length === 0) {
       return res.status(404).json({
@@ -272,12 +247,10 @@ VALUES
   }
 };
 
-
 // Delete Product
 
 const deleteProduct = async (req, res) => {
   try {
-
     const { id } = req.params;
 
     // Get product details before deleting
@@ -287,7 +260,7 @@ const deleteProduct = async (req, res) => {
       FROM products
       WHERE id = $1
       `,
-      [id]
+      [id],
     );
 
     if (existingProduct.rows.length === 0) {
@@ -303,7 +276,7 @@ const deleteProduct = async (req, res) => {
       WHERE id = $1
       RETURNING *
       `,
-      [id]
+      [id],
     );
 
     // Insert history record
@@ -322,25 +295,18 @@ const deleteProduct = async (req, res) => {
         $3
       )
       `,
-      [
-        id,
-        "DELETE",
-        `Deleted ${existingProduct.rows[0].brand}`
-      ]
+      [id, "DELETE", `Deleted ${existingProduct.rows[0].brand}`],
     );
 
     res.status(200).json({
       message: "Product deleted successfully",
     });
-
   } catch (error) {
-
     console.error(error);
 
     res.status(500).json({
       message: "Error deleting product",
     });
-
   }
 };
 

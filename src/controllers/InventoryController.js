@@ -5,7 +5,7 @@ const pool = require("../config/db");
 const stockIn = async (req, res) => {
 
   try {
-    console.log(req.body);
+    // console.log(req.body);
 
     const { product_id, quantity, remarks,performed_by, } = req.body;
 
@@ -18,8 +18,8 @@ const stockIn = async (req, res) => {
   [product_id]
 );
 
-console.log("Product query result:", product.rows);
-console.log("Product ID received:", product_id);
+// console.log("Product query result:", product.rows);
+// console.log("Product ID received:", product_id);
 
 if (product.rows.length === 0) {
 
