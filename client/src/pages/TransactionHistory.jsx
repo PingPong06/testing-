@@ -212,6 +212,10 @@ const sortedTransactions =
 
       <div className="space-y-2 text-sm">
 
+        <p className="text-gray-700">
+          by <strong> {item.performed_by}</strong>
+        </p>
+
         <p>
           <strong>Size:</strong> {item.size} mm
         </p>

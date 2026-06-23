@@ -41,7 +41,7 @@ if (role !== "ADMIN") {
     } catch (error) {
       console.error(error);
 
-      alert(error.response?.data?.message || "Error deleting user");
+      toast.error(error.response?.data?.message || "Error deleting user");
     }
   };
 
@@ -57,7 +57,7 @@ if (role !== "ADMIN") {
 
       fetchUsers();
     } catch (error) {
-      alert(error.response?.data?.message || "Error creating user");
+      toast.error(error.response?.data?.message || "Error creating user");
     }
   };
 

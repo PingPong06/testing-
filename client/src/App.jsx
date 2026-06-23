@@ -10,6 +10,10 @@ import Navbar from "./components/Navbar";
 import Reports from "./pages/Reports";
 import Login from "./pages/Login";
 import Users from "./pages/Users";
+import ForgotPassword
+from "./pages/ForgotPassword";
+import ResetPassword
+from "./pages/ResetPassword";
 
 function App() {
   return (
@@ -25,6 +29,14 @@ function App() {
         <Route path="/reports" element={<Reports />} />
         <Route path="/login" element={<Login />} />
         <Route path="/users" element={<Users />} />
+        <Route
+  path="/reset-password/:token"
+  element={<ResetPassword />}
+/>
+        <Route
+  path="/forgot-password"
+  element={<ForgotPassword />}
+/>
       </Routes>
     </BrowserRouter>
   );

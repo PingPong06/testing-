@@ -125,7 +125,7 @@ RETURNING *
   product_id,
   quantity,
   remarks,
-  performed_by,
+  performed_by
 ],
     );
 
@@ -149,6 +149,7 @@ const getInventorySummary = async (req, res) => {
         p.brand,
         p.size,
         p.pipe_type,
+        t.performed_by,
 
         COALESCE(
           SUM(
@@ -197,8 +198,8 @@ const getTransactionHistory = async (req, res) => {
         p.pipe_type,
         t.transaction_type,
         t.quantity,
-        t.remarks,
-        t.transaction_date
+        t.transaction_date,
+        t.performed_by
 
       FROM inventory_transactions t
 

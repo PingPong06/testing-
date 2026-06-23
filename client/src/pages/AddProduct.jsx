@@ -44,7 +44,7 @@ function AddProduct() {
   !formData.unit_price||
   !formData.weight_per_unit
 ) {
-  window.alert("All fields are required");
+  toast.error("All fields are required");
   return;
 }
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { login } from "../services/api";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 
 
@@ -18,6 +19,8 @@ const navigate = useNavigate();
   e.preventDefault();
 
   try {
+
+    console.error(error);
 
     const response = await login({
       username,
@@ -108,6 +111,15 @@ setTimeout(() => {
         >
           Login
         </button>
+
+        <p className="text-red-500 font-bold">
+  <Link
+    to="/forgot-password"
+    className="text-blue-600 hover:underline"
+  >
+    Forgot Password?
+  </Link>
+</p>
 
       </form>
     </div>
