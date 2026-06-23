@@ -4,6 +4,9 @@ import { getTransactionHistory } from "../services/api";
 function TransactionHistory() {
 
   const [transactions, setTransactions] = useState([]);
+  const [fromDate, setFromDate] = useState("");
+const [toDate, setToDate] = useState("");
+const [sortBy, setSortBy] = useState("latest");
 
   useEffect(() => {
     fetchTransactions();
@@ -26,17 +29,90 @@ function TransactionHistory() {
 
   };
 
+  const filteredTransactions = transactions.filter((item) => {
+
+  const transactionDate =
+    new Date(item.transaction_date);
+
+  if (
+    fromDate &&
+    transactionDate < new Date(fromDate)
+  ) {
+    return false;
+  }
+
+  if (
+    toDate &&
+    transactionDate >
+      new Date(toDate + "T23:59:59")
+  ) {
+    return false;
+  }
+
+  return true;
+});
+
+const sortedTransactions =
+  [...filteredTransactions].sort((a, b) => {
+
+    switch (sortBy) {
+
+      case "latest":
+        return (
+          new Date(b.transaction_date) -
+          new Date(a.transaction_date)
+        );
+
+      case "oldest":
+        return (
+          new Date(a.transaction_date) -
+          new Date(b.transaction_date)
+        );
+
+      default:
+        return 0;
+    }
+  });
+
   return (
   <div className="p-8">
 
     <h1 className="text-4xl font-bold mb-6">
-      Inventory Transactions
+      Transaction History
     </h1>
 
-    <div className="bg-white rounded-xl shadow-md overflow-hidden">
+    <div className="flex flex-wrap gap-4 mb-6">
 
-      <table className="w-full">
+      <input
+        type="date"
+        value={fromDate}
+        onChange={(e) => setFromDate(e.target.value)}
+        className="border rounded-lg px-4 py-2"
+      />
 
+      <input
+        type="date"
+        value={toDate}
+        onChange={(e) => setToDate(e.target.value)}
+        className="border rounded-lg px-4 py-2"
+      />
+
+      <select
+        value={sortBy}
+        onChange={(e) => setSortBy(e.target.value)}
+        className="border rounded-lg px-4 py-2"
+      >
+        <option value="latest">Latest First</option>
+        <option value="oldest">Oldest First</option>
+      </select>
+
+    </div>
+
+    <div className="hidden md:block bg-white rounded-xl shadow-md">
+
+      {/* {Desktop View} */}
+
+  <table className="w-full">
         <thead className="bg-gray-100">
 
           <tr>
@@ -44,7 +120,7 @@ function TransactionHistory() {
             <th className="p-4 text-left">Size</th>
             <th className="p-4 text-left">Type</th>
             <th className="p-4 text-left">Quantity</th>
-            <th className="p-4 text-left">Remarks</th>
+            {/* <th className="p-4 text-left">Remarks</th> */}
             <th className="p-4 text-left">Date</th>
           </tr>
 
@@ -52,7 +128,7 @@ function TransactionHistory() {
 
         <tbody>
 
-          {transactions.map((item) => (
+          {sortedTransactions.map((item) => (
 
             <tr
               key={item.id}
@@ -85,9 +161,9 @@ function TransactionHistory() {
                 {item.quantity}
               </td>
 
-              <td className="p-4">
+              {/* <td className="p-4">
                 {item.remarks}
-              </td>
+              </td> */}
 
               <td className="p-4">
                 {new Date(
@@ -104,6 +180,64 @@ function TransactionHistory() {
       </table>
 
     </div>
+
+    {/* {Mobile View} */}
+
+    <div className="md:hidden space-y-4">
+
+  {sortedTransactions.map((item) => (
+
+    <div
+      key={item.id}
+      className="bg-white rounded-xl shadow-md p-4"
+    >
+
+      <div className="flex justify-between items-center mb-3">
+
+        <h2 className="font-bold text-lg">
+          {item.brand}
+        </h2>
+
+        <span
+          className={
+            item.transaction_type === "IN"
+              ? "bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-semibold"
+              : "bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm font-semibold"
+          }
+        >
+          {item.transaction_type}
+        </span>
+
+      </div>
+
+      <div className="space-y-2 text-sm">
+
+        <p>
+          <strong>Size:</strong> {item.size} mm
+        </p>
+
+        <p>
+          <strong>Quantity:</strong> {item.quantity}
+        </p>
+
+        {/* <p>
+          <strong>Remarks:</strong> {item.remarks}
+        </p> */}
+
+        <p>
+          <strong>Date:</strong>{" "}
+          {new Date(
+            item.transaction_date
+          ).toLocaleString()}
+        </p>
+
+      </div>
+
+    </div>
+
+  ))}
+
+</div>
 
   </div>
 );

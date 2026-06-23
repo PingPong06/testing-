@@ -1,11 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { login } from "../services/api";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+
+
 
 function Login() {
-
+const navigate = useNavigate();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+ 
  const handleLogin = async (e) => {
 
   // console.log("BUTTON CLICKED");
@@ -39,18 +44,17 @@ localStorage.setItem(
   response.data.role
 );
 
-    window.alert(
-      "Login Successful"
-    );
+  toast.success("Login Successful");
 
-window.location.href = "/";
-
+setTimeout(() => {
+  navigate("/");
+}, 1500);
   } catch (error) {
 
-    window.alert(
-      error.response?.data?.message ||
-      "Login Failed"
-    );
+    toast.error(
+  error.response?.data?.message ||
+  "Login Failed"
+);
 
     console.error(error);
 
@@ -65,7 +69,7 @@ window.location.href = "/";
         className="bg-white p-8 rounded-xl shadow-md w-96"
       >
         <h1 className="text-2xl font-bold mb-6">
-          Admin Login
+          Login
         </h1>
 
         <input
@@ -78,6 +82,8 @@ window.location.href = "/";
           }
         />
 
+        
+
         <input
           type="password"
           placeholder="Password"
@@ -88,12 +94,21 @@ window.location.href = "/";
           }
         />
 
+          {/* <button
+  type="button"
+  onClick={() => toast.success("Hello")}
+  className="w-full bg-green-500 text-white p-3 rounded-lg mb-4"
+>
+  Test Toast
+</button> */}
+
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white p-3 rounded-lg"
+          className="w-full bg-blue-600 text-white p-3 rounded-lg cursor-pointer"
         >
           Login
         </button>
+
       </form>
     </div>
   );

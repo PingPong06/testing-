@@ -256,7 +256,7 @@ function Reports() {
 
             <option value="pipe_type">Pipe Type</option>
 
-            <option value="size">Size</option>
+            <option value="size">Size (in mm)</option>
 
             <option value="quantity">Quantity</option>
           </select>
@@ -276,17 +276,17 @@ function Reports() {
             <option value="ASC">Ascending</option>
           </select>
 
-          <div className="flex gap-4 mt-6">
+          <div className="flex flex-wrap gap-4 mt-6">
             <button
               onClick={handlePreview}
-              className="bg-blue-600 text-white px-5 py-2 rounded-lg"
+              className="bg-blue-600 text-white px-5 py-2 rounded-lg cursor-pointer"
             >
               Preview Report
             </button>
 
             <button
               onClick={handleDownloadPDF}
-              className="bg-red-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+              className="bg-red-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer"
             >
               <FaFilePdf size={18} />
               Download PDF
@@ -294,7 +294,7 @@ function Reports() {
 
             <button
               onClick={handleDownloadExcel}
-              className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2"
+              className="bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer"
             >
               <FaFileExcel size={18} />
               Download Excel
@@ -318,11 +318,15 @@ function Reports() {
 
                     <th className="text-left p-2">Pipe Type</th>
 
-                    <th className="text-left p-2">Size</th>
+                    <th className="text-left p-2">Size (in mm)</th>
 
                     <th className="text-left p-2">Type</th>
 
                     <th className="text-left p-2">Quantity</th>
+
+                    <th className="text-left p-2">Unit Price</th>
+
+                    <th className="text-left p-2">Weight per unit (in kg)</th>
 
                     <th className="text-left p-2">Performed By</th>
                   </tr>
@@ -344,6 +348,10 @@ function Reports() {
                       <td className="p-2">{row.transaction_type}</td>
 
                       <td className="p-2">{row.quantity}</td>
+
+                      <td className="p-2">{row.unit_price}</td>
+
+                      <td className="p-2">{row.weight_per_unit}</td>
 
                       <td className="p-2">{row.performed_by}</td>
                     </tr>

@@ -71,3 +71,18 @@ export const getReportData = (filters) =>
 
   export const login = (data) =>
   API.post("/auth/login", data);
+
+
+// user creation, deletion and reading 
+
+  export const getUsers = () => {
+  return API.get("/users");
+};
+
+export const createUser = (userData) => {
+  return API.post("/users", userData);
+};
+
+export const deleteUser = (id) => {
+  return API.delete(`/users/${id}`);
+};

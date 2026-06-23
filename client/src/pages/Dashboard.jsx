@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { getDashboardStats, getProducts } from "../services/api";
 import Select from "react-select";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  Package,
+  Boxes,
+  AlertTriangle,
+  ArrowLeftRight,
+} from "lucide-react";
 
 import {
   BarChart,
@@ -37,14 +45,19 @@ function Dashboard() {
 
   const [lowStockData, setLowStockData] = useState([]);
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const response = await getDashboardStats();
-        setStats(response.data);
 
-        const productsResponse = await getProducts();
-        setProducts(productsResponse.data);
+        setLoading(true);
+
+    const response = await getDashboardStats();
+    setStats(response.data);
+
+    const productsResponse = await getProducts();
+    setProducts(productsResponse.data);
 
         const uniqueBrands = [
           ...new Set(productsResponse.data.map((p) => p.brand)),
@@ -78,6 +91,9 @@ function Dashboard() {
       } catch (error) {
         console.error("Dashboard fetch error:", error);
       }
+      finally {
+    setLoading(false);
+  }
     };
 
     fetchDashboard();
@@ -147,13 +163,305 @@ function Dashboard() {
   };
 
   return (
-    <div className="p-8">
-      <h1 className="text-4xl font-bold mb-8">PVC Inventory Dashboard</h1>
+    <div className="min-h-screen bg-slate-100 p-4 md:p-8">
+      <h1 className="text-4xl font-bold mb-6">Dashboard</h1>
 
-      <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-        <h2 className="text-xl font-semibold mb-4">Product Search</h2>
+      <motion.div
+  initial={{
+    opacity: 0,
+    y: -20,
+  }}
+  animate={{
+    opacity: 1,
+    y: 0,
+  }}
+  transition={{
+    duration: 0.5,
+  }}
+  className="
+  bg-gradient-to-r
+  from-blue-600
+  to-indigo-700
+  text-white
+  rounded-2xl
+  p-6
+  mb-8
+  shadow-lg
+  "
+>
+  <h2 className="text-2xl font-bold">
+   Welcome, {localStorage.getItem("username")?.charAt(0).toUpperCase() + localStorage.getItem("username")?.slice(1)}
+  </h2>
 
-        <div className="grid md:grid-cols-3 gap-4">
+  <p className="mt-2 opacity-90">
+    Manage inventory, stock movement and reporting for Esscon.
+  </p>
+</motion.div>
+
+
+<div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+
+  <motion.div
+  whileHover={{
+    y: -8,
+    scale: 1.05,
+  }}
+  whileTap={{
+    scale: 0.95,
+  }}
+  transition={{
+    type: "spring",
+    stiffness: 300,
+  }}
+>
+  <Link
+    to="/add-product"
+    className="
+    block
+    bg-white
+    rounded-2xl
+    shadow-lg
+    p-5
+    text-center
+    "
+  >
+    <div className="text-3xl mb-2">➕</div>
+    <p className="font-semibold">
+      Add Product
+    </p>
+  </Link>
+  </motion.div>
+
+  <motion.div
+  whileHover={{
+    y: -8,
+    scale: 1.05,
+  }}
+  whileTap={{
+    scale: 0.95,
+  }}
+  transition={{
+    type: "spring",
+    stiffness: 300,
+  }}
+>
+  <Link
+    to="/inventory"
+    className="
+    block
+    bg-white
+    rounded-2xl
+    shadow-lg
+    p-5
+    text-center
+    "
+  >
+    <div className="text-3xl mb-2">📥</div>
+    <p className="font-semibold">
+      Stock In
+    </p>
+  </Link>
+  </motion.div>
+
+  <motion.div
+  whileHover={{
+    y: -8,
+    scale: 1.05,
+  }}
+  whileTap={{
+    scale: 0.95,
+  }}
+  transition={{
+    type: "spring",
+    stiffness: 300,
+  }}
+>
+  <Link
+    to="/inventory"
+    className="
+    block
+    bg-white
+    rounded-2xl
+    shadow-lg
+    p-5
+    text-center
+    "
+  >
+    <div className="text-3xl mb-2">📤</div>
+    <p className="font-semibold">
+      Stock Out
+    </p>
+  </Link>
+  </motion.div>
+
+  <motion.div
+  whileHover={{
+    y: -8,
+    scale: 1.05,
+  }}
+  whileTap={{
+    scale: 0.95,
+  }}
+  transition={{
+    type: "spring",
+    stiffness: 300,
+  }}
+>
+  <Link
+    to="/reports"
+    className="
+    block
+    bg-white
+    rounded-2xl
+    shadow-lg
+    p-5
+    text-center
+    "
+  >
+    <div className="text-3xl mb-2">📊</div>
+    <p className="font-semibold">
+      Reports
+    </p>
+  </Link>
+  </motion.div>
+
+  </div>
+      
+{/* <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+  <Link
+    to="/add-product"
+    className="bg-white p-5 rounded-2xl shadow-lg hover:shadow-xl transition text-center"
+  >
+    ➕ Add Product
+  </Link>
+
+  <Link
+    to="/inventory"
+    className="bg-white p-5 rounded-2xl shadow-lg hover:shadow-xl transition text-center"
+  >
+    📥 Stock In
+  </Link>
+
+  <Link
+    to="/inventory"
+    className="bg-white p-5 rounded-2xl shadow-lg hover:shadow-xl transition text-center"
+  >
+    📤 Stock Out
+  </Link>
+
+  <Link
+    to="/reports"
+    className="bg-white p-5 rounded-2xl shadow-lg hover:shadow-xl transition text-center"
+  >
+    📊 Reports
+  </Link>
+</div> */}
+      
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Total Products */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-200">
+  <div className="flex justify-between items-center">
+    <div>
+      <h3 className="text-gray-500 text-sm">
+        Total Products
+      </h3>
+
+      <p className="text-3xl font-bold mt-2">
+        {stats.total_products}
+      </p>
+    </div>
+
+    <div className="bg-blue-100 p-3 rounded-xl">
+  <Package
+    size={28}
+    className="text-blue-600"
+  />
+</div>
+  </div>
+</div>
+
+        {/* Total Stock */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-200">
+  <div className="flex justify-between items-center">
+    <div>
+      <h3 className="text-gray-500 text-sm">
+        Total Stock
+      </h3>
+
+      <p className="text-3xl font-bold mt-2">
+        {stats.total_stock}
+      </p>
+    </div>
+
+    <div className="bg-green-100 p-3 rounded-xl">
+  <Boxes
+    size={28}
+    className="text-green-600"
+  />
+</div>
+  </div>
+</div>
+
+        {/* Low Stock */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-200">
+  <div className="flex justify-between items-center">
+    <div>
+      <h3 className="text-gray-500 text-sm">
+        Low Stock Items
+      </h3>
+
+      <p className="text-3xl font-bold mt-2">
+        {stats.low_stock_count}
+      </p>
+    </div>
+
+    <div className="bg-red-100 p-3 rounded-xl">
+  <AlertTriangle
+    size={28}
+    className="text-red-600"
+  />
+</div>
+  </div>
+</div>
+
+        {/* Transactions */}
+        <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-200">
+  <div className="flex justify-between items-center">
+    <div>
+      <h3 className="text-gray-500 text-sm">
+        Today's Transactions
+      </h3>
+
+      <p className="text-3xl font-bold mt-2">
+        {stats.total_transactions}
+      </p>
+    </div>
+
+    <div className="bg-purple-100 p-3 rounded-xl">
+  <ArrowLeftRight
+    size={28}
+    className="text-purple-600"
+  />
+</div>
+  </div>
+</div>
+</div>
+
+<div className="
+bg-white
+rounded-2xl
+shadow-lg
+p-6
+mb-8
+hover:shadow-xl
+transition-all
+duration-200">
+        <h2 className="text-xl font-bold mb-4">
+🔍 Product Search
+</h2>
+
+        <div className="grid lg:grid-cols-3 gap-6">
           <Select
             options={brands}
             value={selectedBrand}
@@ -223,53 +531,38 @@ function Dashboard() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Total Products */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-gray-500 text-sm">Total Products</h3>
-          <p className="text-3xl font-bold mt-2">{stats.total_products}</p>
-        </div>
-
-        {/* Total Stock */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-gray-500 text-sm">Total Stock</h3>
-          <p className="text-3xl font-bold mt-2">{stats.total_stock}</p>
-        </div>
-
-        {/* Low Stock */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-gray-500 text-sm">Low Stock Items</h3>
-          <p className="text-3xl font-bold mt-2 text-red-500">
-            {stats.low_stock_count}
-          </p>
-        </div>
-
-        {/* Transactions */}
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h3 className="text-gray-500 text-sm">Total Transactions</h3>
-          <p className="text-3xl font-bold mt-2">{stats.total_transactions}</p>
-        </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 ">
 
         {/* Chart */}
-        <div className="bg-white rounded-xl shadow-md p-6 lg:col-span-4">
-          <h2 className="text-2xl font-bold mb-4">Top 10 Products By Stock</h2>
+        <div className="hidden md:block bg-white rounded-2xl shadow-lg p-6 lg:col-span-2 hover:shadow-xl transition-all duration-200">
+          <h2 className="text-2xl font-bold mb-4">
+  📊 Top 10 Products By Stock
+</h2>
 
           <ResponsiveContainer width="100%" height={450}>
             <BarChart layout="vertical" data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis type="number" />
 
-              <YAxis type="category" dataKey="name" width={150} />
+              <YAxis type="category" dataKey="name" width={80} />
 
               <Tooltip />
-              <Bar dataKey="stock">
-                <LabelList dataKey="stock" position="right" />
-              </Bar>
+              <Bar
+  dataKey="stock"
+  fill="#3B82F6"
+  radius={[0, 6, 6, 0]}
+>
+  <LabelList dataKey="stock" position="right" />
+</Bar>
             </BarChart>
           </ResponsiveContainer>
         </div>
-        <div className="bg-white rounded-xl shadow-md p-6 lg:col-span-4">
-          <h2 className="text-2xl font-bold mb-4">Low Stock Products</h2>
+        <div className="bg-white rounded-2xl shadow-lg p-6 hover:shadow-xl
+transition-all
+duration-200">
+          <h2 className="text-2xl font-bold mb-4">
+  ⚠ Low Stock Products
+</h2>
 
           {lowStockData.length === 0 ? (
             <p className="text-green-600 font-semibold">
@@ -317,8 +610,9 @@ function Dashboard() {
             </div>
           )}
         </div>
+        </div>
       </div>
-    </div>
+    // </div>
   );
 }
 

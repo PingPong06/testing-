@@ -9,6 +9,7 @@ import TransactionHistory from "./pages/TransactionHistory";
 import Navbar from "./components/Navbar";
 import Reports from "./pages/Reports";
 import Login from "./pages/Login";
+import Users from "./pages/Users";
 
 function App() {
   return (
@@ -22,7 +23,8 @@ function App() {
         <Route path="/history" element={<History />} />
         <Route path="/transactions" element={<TransactionHistory />} />
         <Route path="/reports" element={<Reports />} />
-        <Route path="/admin/login" element={<Login />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/users" element={<Users />} />
       </Routes>
     </BrowserRouter>
   );

@@ -1,7 +1,16 @@
 import { useState } from "react";
 import { addProduct } from "../services/api";
 
+import { Navigate } from "react-router-dom";
+import toast from "react-hot-toast";
+
 function AddProduct() {
+
+//   const role = localStorage.getItem("role");
+
+// if (role !== "ADMIN") {
+//   return <Navigate to="/" />;
+// }
 
   const [formData, setFormData] = useState({
     brand: "",
@@ -9,6 +18,7 @@ function AddProduct() {
     pipe_type: "",
     min_stock: "",
     unit_price:"",
+    weight_per_unit:"",
   });
 
   const handleChange = (e) => {
@@ -31,7 +41,8 @@ function AddProduct() {
   !formData.size ||
   !formData.pipe_type ||
   !formData.min_stock ||
-  !formData.unit_price
+  !formData.unit_price||
+  !formData.weight_per_unit
 ) {
   window.alert("All fields are required");
   return;
@@ -43,7 +54,7 @@ function AddProduct() {
 
       console.log(formData);
 
-      window.alert("Product Added Successfully");
+      toast.success("Product Added Successfully");
 
       setFormData({
         brand: "",
@@ -51,20 +62,19 @@ function AddProduct() {
         pipe_type: "",
         min_stock: "",
         unit_price:"",
+        weight_per_unit:"",
       });
 
     } catch (error) {
 
-  window.alert(
-    error.response?.data?.message ||
-    "Something went wrong"
-  );
+  toast.error("Failed to Add Product");
 
   console.error(error);
 
 }
 
   };
+  console.log(formData);
 
   return (
   <div className="p-8 flex justify-center">
@@ -90,7 +100,7 @@ function AddProduct() {
         />
 
         <input
-          type="text"
+          type="number"
           name="size"
           placeholder="Size (in mm)"
           value={formData.size}
@@ -119,6 +129,7 @@ function AddProduct() {
 
         <input
           type="number"
+          name="unit_price"
           step="0.01"
           placeholder="Unit Price"
           value={formData.unit_price}
@@ -131,9 +142,24 @@ function AddProduct() {
           className="border p-3 rounded-lg"
         />
 
+<input
+          type="number"
+          name="weight_per_unit"
+          step="0.01"
+          placeholder="Weight/Unit (in kg)"
+          value={formData.weight_per_unit}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              weight_per_unit: e.target.value,
+            })
+          }
+          className="w-full border p-3 rounded"
+        />
+
         <button
           type="submit"
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded font-semibold"
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded font-semibold cursor-pointer"
         >
           Add Product
         </button>
@@ -141,6 +167,7 @@ function AddProduct() {
       </form>
 
     </div>
+    
 
   </div>
 );

@@ -5,7 +5,7 @@ const pool = require("../config/db");
 const createProduct = async (req, res) => {
   try {
     // console.log(req.body);
-    const { brand, size, pipe_type, min_stock, unit_price } = req.body;
+    const { brand, size, pipe_type, min_stock, unit_price, weight_per_unit} = req.body;
     const brandValue = brand.trim().toLowerCase();
 
     const pipeTypeValue = pipe_type.trim().toLowerCase();
@@ -30,12 +30,13 @@ const createProduct = async (req, res) => {
     size,
     pipe_type,
     min_stock,
-    unit_price
+    unit_price,
+    weight_per_unit
   )
-  VALUES ($1,$2,$3,$4,$5)
+  VALUES ($1,$2,$3,$4,$5,$6)
   RETURNING *
   `,
-      [brandValue, size, pipeTypeValue, Number(min_stock), Number(unit_price)],
+      [brandValue, size, pipeTypeValue, Number(min_stock), Number(unit_price), Number(weight_per_unit)],
     );
     await pool.query(
       `
@@ -43,16 +44,18 @@ const createProduct = async (req, res) => {
   (
       product_id,
       action,
-      description
+      description,
+      username
   )
   VALUES
   (
       $1,
       $2,
-      $3
+      $3,
+      $4
   )
   `,
-      [result.rows[0].id, "CREATE", `Created ${brand}`],
+      [result.rows[0].id, "CREATE", `Created ${brand}`,req.user.username],
     );
 
     res.status(201).json(result.rows[0]);
@@ -85,8 +88,8 @@ const getAllProducts = async (req, res) => {
         p.brand,
         p.size,
         p.pipe_type,
-        p.unit,
         p.min_stock,
+        p.weight_per_unit,
         p.unit_price,
 
         COALESCE(
@@ -127,6 +130,7 @@ const getAllProducts = async (req, res) => {
         p.pipe_type,
         p.unit,
         p.min_stock,
+        p.weight_per_unit,
         p.unit_price
 
       ORDER BY p.id
@@ -192,7 +196,7 @@ const updateProduct = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const { brand, size, pipe_type, min_stock, unit_price } = req.body;
+    const { brand, size, pipe_type, min_stock, unit_price, weight_per_unit } = req.body;
 
     const brandValue = brand.trim().toLowerCase();
 
@@ -206,11 +210,12 @@ const updateProduct = async (req, res) => {
         size = $2,
         pipe_type = $3,
         min_stock = $4,
-        unit_price = $5
-      WHERE id = $6
+        unit_price = $5,
+        weight_per_unit = $6
+      WHERE id = $7
       RETURNING *
       `,
-      [brandValue, size, pipeTypeValue, min_stock, unit_price, id],
+      [brandValue, size, pipeTypeValue, min_stock, unit_price, weight_per_unit, id],
     );
 
     await pool.query(
@@ -219,16 +224,18 @@ INSERT INTO inventory_history
 (
     product_id,
     action,
-    description
+    description,
+    username
 )
 VALUES
 (
     $1,
     $2,
-    $3
+    $3,
+    $4
 )
 `,
-      [id, "UPDATE", `Updated ${brandValue}`],
+      [id, "UPDATE", `Updated ${brandValue}`,req.user.username],
     );
 
     if (result.rows.length === 0) {
@@ -286,16 +293,18 @@ const deleteProduct = async (req, res) => {
       (
         product_id,
         action,
-        description
+        description,
+        username
       )
       VALUES
       (
         $1,
         $2,
-        $3
+        $3,
+        $4
       )
       `,
-      [id, "DELETE", `Deleted ${existingProduct.rows[0].brand}`],
+      [id, "DELETE", `Deleted ${existingProduct.rows[0].brand}`, req.user.username],
     );
 
     res.status(200).json({

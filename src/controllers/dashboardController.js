@@ -9,9 +9,10 @@ const getDashboardSummary = async (req, res) => {
     `);
 
     const totalTransactions = await pool.query(`
-      SELECT COUNT(*) AS total_transactions
-      FROM inventory_transactions
-    `);
+  SELECT COUNT(*) AS total_transactions
+  FROM inventory_transactions
+  WHERE DATE(transaction_date) = CURRENT_DATE
+`);
 
     const stockResult = await pool.query(`
       SELECT
