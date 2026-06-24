@@ -57,13 +57,13 @@ const [selectedProductId, setSelectedProductId] = useState(null);
   };
 
   // handle delete
-console.log("selectedProductId =", selectedProductId);
+// console.log("selectedProductId =", selectedProductId);
 const handleDelete = async () => {
 
-  console.log(
-    "selectedProductId =",
-    selectedProductId
-  );
+  // console.log(
+  //   "selectedProductId =",
+  //   selectedProductId
+  // );
 
   try {
 

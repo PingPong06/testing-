@@ -20,7 +20,7 @@ const navigate = useNavigate();
 
   try {
 
-    console.error(error);
+    // console.error(error);
 
     const response = await login({
       username,

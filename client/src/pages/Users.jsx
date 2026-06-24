@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { getUsers, createUser, deleteUser } from "../services/api";
+import toast from "react-hot-toast"
+import { motion } from "framer-motion";
 
 import { Navigate } from "react-router-dom";
 
@@ -15,9 +17,16 @@ if (role !== "ADMIN") {
 
   const [formData, setFormData] = useState({
     username: "",
+    email: "",
     password: "",
     role: "USER",
   });
+
+const [showDeleteModal, setShowDeleteModal] =
+  useState(false);
+
+const [userToDelete, setUserToDelete] =
+  useState(null);
 
   const fetchUsers = async () => {
     try {
@@ -33,33 +42,57 @@ if (role !== "ADMIN") {
     fetchUsers();
   }, []);
 
-  const handleDelete = async (id) => {
-    try {
-      await deleteUser(id);
+ const handleDelete = async () => {
+  try {
 
-      fetchUsers();
-    } catch (error) {
-      console.error(error);
+    await deleteUser(userToDelete);
 
-      toast.error(error.response?.data?.message || "Error deleting user");
-    }
-  };
+    toast.success(
+      "User deleted successfully"
+    );
+
+    setShowDeleteModal(false);
+
+    // setUserToDelete(null);
+
+    fetchUsers();
+
+  } catch (error) {
+
+    toast.error(
+      "Failed to delete user"
+    );
+
+  }
+};
 
   const handleCreateUser = async () => {
     try {
+
+      console.log(formData);
       await createUser(formData);
 
       setFormData({
         username: "",
+        Email:"",
         password: "",
         role: "USER",
       });
 
       fetchUsers();
+
+      toast.success("User created successfully")
     } catch (error) {
       toast.error(error.response?.data?.message || "Error creating user");
     }
   };
+
+ const handleChange = (e) => {
+  setFormData({
+    ...formData,
+    [e.target.name]: e.target.value,
+  });
+};
 
   return (
     <div className="p-8">
@@ -81,6 +114,15 @@ if (role !== "ADMIN") {
             }
             className="border p-2 rounded"
           />
+
+          <input
+  type="email"
+  name="email"
+  placeholder="Email"
+  value={formData.email}
+  onChange={handleChange}
+  className="w-full border p-3 rounded"
+/>
 
           <input
             type="password"
@@ -149,7 +191,10 @@ if (role !== "ADMIN") {
                     </span>
                   ) : (
                     <button
-                      onClick={() => handleDelete(user.id)}
+                      onClick={() => {
+  setUserToDelete(user.id);
+  setShowDeleteModal(true);
+}}
                       className="bg-red-500 text-white px-3 py-1 rounded cursor-pointer"
                     >
                       Delete
@@ -161,6 +206,83 @@ if (role !== "ADMIN") {
           </tbody>
         </table>
       </div>
+
+      {showDeleteModal && (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+
+      <motion.div
+        initial={{
+          opacity: 0,
+          scale: 0.8,
+          y: 30,
+        }}
+        animate={{
+          opacity: 1,
+          scale: 1,
+          y: 0,
+        }}
+        exit={{
+          opacity: 0,
+          scale: 0.8,
+        }}
+        transition={{
+          type: "spring",
+          stiffness: 300,
+          damping: 25,
+        }}
+        className="
+        bg-white
+        p-6
+        rounded-2xl
+        shadow-xl
+        w-[90%]
+        max-w-md
+        "
+      >
+
+        <h2 className="text-xl font-bold mb-3">
+          Delete User
+        </h2>
+
+        <p className="text-gray-600 mb-6">
+          Are you sure you want to delete the user?
+        </p>
+
+        <div className="flex justify-end gap-3">
+
+          <button
+            onClick={() =>
+              setShowDeleteModal(false)
+            }
+            className="
+            px-4
+            py-2
+            rounded-lg
+            bg-gray-200
+            "
+          >
+            Cancel
+          </button>
+
+          <button
+  onClick={handleDelete}
+  className="
+  px-4
+  py-2
+  rounded-lg
+  bg-red-600
+  text-white
+  "
+>
+  Delete
+</button>
+
+        </div>
+
+      </motion.div>
+
+    </div>
+  )}
     </div>
   );
 };

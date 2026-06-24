@@ -3,13 +3,14 @@ const bcrypt = require("bcryptjs");
 
 const createUser = async (req, res) => {
   try {
-    const { username, password, role } = req.body;
+    const { username, email, password, role } = req.body;
 
-    if (!username || !password || !role) {
+    if (!username || !email || !password || !role) {
       return res.status(400).json({
         message: "All fields are required",
       });
     }
+
 
     const existingUser = await pool.query(
       `
@@ -26,6 +27,15 @@ const createUser = async (req, res) => {
       });
     }
 
+    const emailRegex =
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+if (!emailRegex.test(email)) {
+  return res.status(400).json({
+    message: "Invalid email",
+  });
+}
+
     const hashedPassword =
       await bcrypt.hash(password, 10);
 
@@ -34,10 +44,11 @@ const createUser = async (req, res) => {
       INSERT INTO users
       (
         username,
+        email,
         password,
         role
       )
-      VALUES ($1,$2,$3)
+      VALUES ($1,$2,$3,$4)
       RETURNING
       id,
       username,
@@ -45,6 +56,7 @@ const createUser = async (req, res) => {
       `,
       [
         username.trim(),
+        email,
         hashedPassword,
         role,
       ]
