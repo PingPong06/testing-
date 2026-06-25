@@ -14,7 +14,7 @@ import ForgotPassword
 from "./pages/ForgotPassword";
 import ResetPassword
 from "./pages/ResetPassword";
-import AdminRoute from "./components/AdminRoute";
+import AdminRoute from "./components/adminRoute";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
