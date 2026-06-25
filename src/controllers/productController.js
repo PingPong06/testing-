@@ -4,7 +4,7 @@ const pool = require("../config/db");
 
 const createProduct = async (req, res) => {
   try {
-    // console.log(req.body);
+    console.log(req.body);
     const { brand, size, pipe_type, min_stock, unit_price, weight_per_unit} = req.body;
     const brandValue = brand.trim().toLowerCase();
 

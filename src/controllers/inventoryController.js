@@ -1,50 +1,134 @@
 const pool = require("../config/db");
 
-const XLSX = require("xlsx");
+const ExcelJS = require("exceljs");
 
 const exportActivityHistoryExcel = async (req, res) => {
   try {
 
     const result = await pool.query(`
       SELECT
-        id AS "ID",
-        product_id AS "Product ID",
-        action AS "Action",
-        description AS "Description",
-        COALESCE(username, 'System') AS "Username",
-        created_at AS "Date"
-      FROM inventory_history
-      ORDER BY created_at DESC
+        h.created_at,
+        h.action,
+        CONCAT(
+          p.brand,
+          ' ',
+          p.pipe_type,
+          ' ',
+          p.size,
+          ' mm'
+        ) AS product,
+        h.description,
+        h.username
+      FROM inventory_history h
+      LEFT JOIN products p
+      ON h.product_id = p.id
+      ORDER BY h.created_at DESC
     `);
 
+    const workbook = new ExcelJS.Workbook();
+
     const worksheet =
-      XLSX.utils.json_to_sheet(result.rows);
+      workbook.addWorksheet(
+        "Activity History"
+      );
 
-    const workbook =
-      XLSX.utils.book_new();
+    worksheet.columns = [
+      {
+        header: "Date",
+        key: "date",
+        width: 25,
+      },
+      {
+        header: "Action",
+        key: "action",
+        width: 15,
+      },
+      {
+        header: "Product",
+        key: "product",
+        width: 35,
+      },
+      {
+        header: "Description",
+        key: "description",
+        width: 40,
+      },
+      {
+        header: "Performed By",
+        key: "username",
+        width: 20,
+      },
+    ];
 
-    XLSX.utils.book_append_sheet(
-      workbook,
-      worksheet,
-      "Activity History"
-    );
+    const headerRow =
+      worksheet.getRow(1);
 
-    const buffer = XLSX.write(workbook, {
-      type: "buffer",
-      bookType: "xlsx",
+    headerRow.eachCell((cell) => {
+
+      cell.border = {
+        top: { style: "thin" },
+        left: { style: "thin" },
+        bottom: { style: "thin" },
+        right: { style: "thin" },
+      };
+
+      cell.fill = {
+        type: "pattern",
+        pattern: "solid",
+        fgColor: {
+          argb: "4472C4",
+        },
+      };
+
+      cell.font = {
+        bold: true,
+        color: {
+          argb: "FFFFFF",
+        },
+      };
+
     });
 
-    res.setHeader(
-      "Content-Disposition",
-      "attachment; filename=activity_history.xlsx"
-    );
+    result.rows.forEach((row) => {
+
+      const date =
+        new Date(
+          row.created_at
+        ).toLocaleDateString(
+          "en-IN"
+        );
+
+      worksheet.addRow({
+        date,
+
+        action: row.action,
+
+        product:
+          row.product ||
+          "Deleted Product",
+
+        description:
+          row.description,
+
+        username:
+          row.username || "-",
+      });
+
+    });
 
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     );
 
-    res.send(buffer);
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=activity-history.xlsx"
+    );
+
+    await workbook.xlsx.write(res);
+
+    res.end();
 
   } catch (error) {
 
@@ -52,7 +136,7 @@ const exportActivityHistoryExcel = async (req, res) => {
 
     res.status(500).json({
       message:
-        "Failed to export activity history",
+        "Error generating Activity History Excel",
     });
 
   }
