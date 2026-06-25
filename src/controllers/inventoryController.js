@@ -6,24 +6,17 @@ const exportActivityHistoryExcel = async (req, res) => {
   try {
 
     const result = await pool.query(`
-      SELECT
-        h.created_at,
-        h.action,
-        CONCAT(
-          p.brand,
-          ' ',
-          p.pipe_type,
-          ' ',
-          p.size,
-          ' mm'
-        ) AS product,
-        h.description,
-        h.username
-      FROM inventory_history h
-      LEFT JOIN products p
-      ON h.product_id = p.id
-      ORDER BY h.created_at DESC
-    `);
+  SELECT
+    h.created_at,
+    h.description,
+    h.username,
+    p.pipe_type,
+    p.size
+  FROM inventory_history h
+  LEFT JOIN products p
+  ON h.product_id = p.id
+  ORDER BY h.created_at DESC
+`);
 
     const workbook = new ExcelJS.Workbook();
 
@@ -33,32 +26,32 @@ const exportActivityHistoryExcel = async (req, res) => {
       );
 
     worksheet.columns = [
-      {
-        header: "Date",
-        key: "date",
-        width: 25,
-      },
-      {
-        header: "Action",
-        key: "action",
-        width: 15,
-      },
-      {
-        header: "Product",
-        key: "product",
-        width: 35,
-      },
-      {
-        header: "Description",
-        key: "description",
-        width: 40,
-      },
-      {
-        header: "Performed By",
-        key: "username",
-        width: 20,
-      },
-    ];
+  {
+    header: "Date",
+    key: "date",
+    width: 25,
+  },
+  {
+    header: "Description",
+    key: "description",
+    width: 40,
+  },
+  {
+    header: "Pipe Type",
+    key: "pipe_type",
+    width: 20,
+  },
+  {
+    header: "Size (in mm)",
+    key: "size",
+    width: 15,
+  },
+  {
+    header: "Performed By",
+    key: "username",
+    width: 20,
+  },
+];
 
     const headerRow =
       worksheet.getRow(1);
@@ -91,31 +84,23 @@ const exportActivityHistoryExcel = async (req, res) => {
 
     result.rows.forEach((row) => {
 
-      const date =
-        new Date(
-          row.created_at
-        ).toLocaleDateString(
-          "en-IN"
-        );
+  const date = new Date(
+    row.created_at
+  ).toLocaleDateString("en-IN");
 
-      worksheet.addRow({
-        date,
+  worksheet.addRow({
+    date,
 
-        action: row.action,
+    description: row.description,
 
-        product:
-          row.product ||
-          "Deleted Product",
+    pipe_type: row.pipe_type || "-",
 
-        description:
-          row.description,
+    size: row.size || "-",
 
-        username:
-          row.username || "-",
-      });
+    username: row.username || "-",
+  });
 
-    });
-
+});
     res.setHeader(
       "Content-Type",
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
