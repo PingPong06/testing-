@@ -33,10 +33,59 @@ function App() {
     </ProtectedRoute>
   }
 />
-        <Route path="/product/:id" element={<ProductDetails />} />
-        <Route path="/history" element={<History />} />
-        <Route path="/transactions" element={<TransactionHistory />} />
-        <Route path="/reports" element={<Reports />} />
+<Route
+  path="/"
+  element={
+    <ProtectedRoute>
+      <Dashboard />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/inventory"
+  element={
+    <ProtectedRoute>
+      <Inventory />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/add-product"
+  element={
+    <ProtectedRoute>
+      <AddProduct />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/history"
+  element={
+    <ProtectedRoute>
+      <History />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/transactions"
+  element={
+    <ProtectedRoute>
+      <TransactionHistory />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/reports"
+  element={
+    <ProtectedRoute>
+      <Reports />
+    </ProtectedRoute>
+  }
+/>
         <Route path="/login" element={<Login />} />
         <Route
   path="/users"

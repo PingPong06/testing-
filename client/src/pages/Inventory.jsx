@@ -4,10 +4,9 @@ import SearchBar from "../components/SearchBar";
 import ProductTable from "../components/ProductTable";
 import { login } from "../services/api";
 import toast from "react-hot-toast";
-import {
-  motion,
-  AnimatePresence,
-} from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+
 import {
   getProducts,
   deleteProduct,
@@ -16,14 +15,26 @@ import {
   stockOut,
 } from "../services/api";
 
+import Select from "react-select";
+
 function Inventory() {
-  const [search, setSearch] = useState("");
+  // const [selectedProductId, setSelectedProductId] = useState(null);
 
   const [products, setProducts] = useState([]);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchProducts();
-  }, [search]);
+useEffect(() => {
+
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    navigate("/login");
+    return;
+  }
+
+  fetchProducts();
+
+}, [navigate]);
 
   const [showModal, setShowModal] = useState(false);
 
@@ -33,20 +44,25 @@ function Inventory() {
 
   const [stockAction, setStockAction] = useState("");
 
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  // const [selectedProduct, setSelectedProduct] = useState(null);
 
   const [quantity, setQuantity] = useState("");
 
   const [remarks, setRemarks] = useState("");
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-const [selectedProductId, setSelectedProductId] = useState(null);
+  const [selectedProductId, setSelectedProductId] = useState(null);
 
-  //fetch products
 
-  const fetchProducts = async () => {
-    try {
-      const response = await getProducts(search);
+  const displayProducts = selectedProductId
+  ? products.filter(
+      (product) => product.id === selectedProductId
+    )
+  : products;
+
+ const fetchProducts = async () => {
+  try {
+    const response = await getProducts();
 
       // console.log("Inventory Data:", response.data);
 
@@ -57,36 +73,29 @@ const [selectedProductId, setSelectedProductId] = useState(null);
   };
 
   // handle delete
-// console.log("selectedProductId =", selectedProductId);
-const handleDelete = async () => {
+  // console.log("selectedProductId =", selectedProductId);
+  const handleDelete = async () => {
+    // console.log(
+    //   "selectedProductId =",
+    //   selectedProductId
+    // );
 
-  // console.log(
-  //   "selectedProductId =",
-  //   selectedProductId
-  // );
+    try {
+      await deleteProduct(selectedProductId);
 
-  try {
+      toast.success("Product Deleted");
 
-    await deleteProduct(selectedProductId);
+      setShowDeleteModal(false);
 
-    toast.success("Product Deleted");
+      fetchProducts();
+    } catch (error) {
+      console.error(error);
 
-    setShowDeleteModal(false);
+      console.log(error.response);
 
-    fetchProducts();
-
-  } catch (error) {
-
-  console.error(error);
-
-  console.log(error.response);
-
-  toast.error(
-    error.response?.data?.message ||
-    "Delete Failed"
-  );
-}
-};
+      toast.error(error.response?.data?.message || "Delete Failed");
+    }
+  };
 
   // Edit Handler
 
@@ -128,7 +137,6 @@ const handleDelete = async () => {
     setStockAction("IN");
 
     setStockModal(true);
-
   };
 
   // Stock Out
@@ -146,13 +154,13 @@ const handleDelete = async () => {
   const handleStockSubmit = async () => {
     try {
       const data = {
-  product_id: selectedProduct.id,
-  quantity: Number(quantity),
-  remarks,
-  performed_by: localStorage.getItem("username"),
-};
+        product_id: selectedProduct.id,
+        quantity: Number(quantity),
+        remarks,
+        performed_by: localStorage.getItem("username"),
+      };
 
-        // console.log(data);
+      // console.log(data);
 
       if (stockAction === "IN") {
         toast.success("Stock Added");
@@ -178,243 +186,225 @@ const handleDelete = async () => {
     } catch (error) {
       console.error(error);
 
-      toast.error(
-  error.response?.data?.message ||
-  "Transaction Failed"
-);
+      toast.error(error.response?.data?.message || "Transaction Failed");
     }
   };
 
   return (
     <div className="p-4 md:p-8">
       <h1 className="text-2xl md:text-4xl font-bold mb-6">Inventory</h1>
-      <SearchBar value={search} onChange={(e) => setSearch(e.target.value)} />
+
+      <Select
+        options={products.map((product) => ({
+          value: product.id,
+          label: `${product.brand} - ${product.pipe_type} - ${product.size} mm`,
+        }))}
+        placeholder="Search Product..."
+        isSearchable
+        isClearable
+        onChange={(selected) => {
+          setSelectedProductId(selected ? selected.value : null);
+        }}
+      />
+
       {/* Desktop Table */}
-<div className="hidden md:block">
-  <ProductTable
-  products={products}
-  onDelete={(product) => {
-    setSelectedProductId(product.id);
-    setShowDeleteModal(true);
-  }}
-  onEdit={handleEdit}
-  onStockIn={handleStockIn}
-  onStockOut={handleStockOut}
-/>
-</div>
+      <div className="hidden md:block">
+        <ProductTable
+          products={displayProducts}
+          onDelete={(product) => {
+            setSelectedProductId(product.id);
+            setShowDeleteModal(true);
+          }}
+          onEdit={handleEdit}
+          onStockIn={handleStockIn}
+          onStockOut={handleStockOut}
+        />
+      </div>
 
-{/* Mobile Cards */}
-<div className="md:hidden space-y-4 mt-4">
-  {products.map((product) => (
-    <div
-      key={product.id}
-      className="bg-white rounded-xl shadow-md p-4"
-    >
-      <h3 className="font-bold text-lg">
-        {product.brand}
-      </h3>
+      {/* Mobile Cards */}
+      <div className="md:hidden space-y-4 mt-4">
+        {displayProducts.map((product) => (
+          <div key={product.id} className="bg-white rounded-xl shadow-md p-4">
+            <h3 className="font-bold text-lg">{product.brand}</h3>
 
-      <div className="mt-2 space-y-1 text-sm">
-        <p>
-          <strong>Size:</strong> {product.size} mm
-        </p>
+            <div className="mt-2 space-y-1 text-sm">
+              <p>
+                <strong>Size:</strong> {product.size} mm
+              </p>
 
-        <p>
-          <strong>Pipe Type:</strong> {product.pipe_type}
-        </p>
+              <p>
+                <strong>Pipe Type:</strong> {product.pipe_type}
+              </p>
 
-        <p>
-          <strong>Current Stock:</strong>{" "}
-          {product.current_stock}
-        </p>
+              <p>
+                <strong>Current Stock:</strong> {product.current_stock}
+              </p>
 
-        <p>
-          <strong>Min Stock:</strong>{" "}
-          {product.min_stock}
-        </p>
+              <p>
+                <strong>Min Stock:</strong> {product.min_stock}
+              </p>
 
-        <p>
-  <strong>Unit Price:</strong>{" "}
-  ₹ {product.unit_price} 
-  </p>
+              <p>
+                <strong>Unit Price:</strong> ₹ {product.unit_price}
+              </p>
 
-        <p>
-  <strong>Weight/Unit:</strong>{" "}
-  {product.weight_per_unit} kg
-</p>
+              <p>
+                <strong>Weight/Unit:</strong> {product.weight_per_unit} kg
+              </p>
 
-        {/* <p>
+              {/* <p>
           <strong>Unit:</strong> Nos
         </p> */}
 
-        {Number(product.current_stock) <=
-          Number(product.min_stock) && (
-          <p className="text-orange-600 font-semibold">
-            ⚠ Low Stock
-          </p>
-        )}
+              {Number(product.current_stock) <= Number(product.min_stock) && (
+                <p className="text-orange-600 font-semibold">⚠ Low Stock</p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 mt-4">
+              <button
+                className="bg-blue-500 hover:bg-blue-600 text-white py-2 rounded"
+                onClick={() => handleEdit(product)}
+              >
+                Edit
+              </button>
+
+              <button
+                className="bg-green-500 hover:bg-green-600 text-white py-2 rounded"
+                onClick={() => handleStockIn(product)}
+              >
+                Stock In
+              </button>
+
+              <button
+                className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded"
+                onClick={() => handleStockOut(product)}
+              >
+                Stock Out
+              </button>
+
+              <button
+                className="bg-red-500 hover:bg-red-600 text-white py-2 rounded"
+                onClick={() => {
+                  console.log("Opening delete modal for ID:", product.id);
+
+                  setSelectedProductId(product.id);
+                  setShowDeleteModal(true);
+                  console.log(product);
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        ))}
       </div>
-
-      <div className="grid grid-cols-2 gap-2 mt-4">
-        <button
-          className="bg-blue-500 hover:bg-blue-600 text-white py-2 rounded"
-          onClick={() => handleEdit(product)}
-        >
-          Edit
-        </button>
-
-        <button
-          className="bg-green-500 hover:bg-green-600 text-white py-2 rounded"
-          onClick={() => handleStockIn(product)}
-        >
-          Stock In
-        </button>
-
-        <button
-          className="bg-yellow-500 hover:bg-yellow-600 text-white py-2 rounded"
-          onClick={() => handleStockOut(product)}
-        >
-          Stock Out
-        </button>
-
-        <button
-  className="bg-red-500 hover:bg-red-600 text-white py-2 rounded"
-  onClick={() => {
-
-  console.log(
-    "Opening delete modal for ID:",
-    product.id
-  );
-
-  setSelectedProductId(product.id);
-  setShowDeleteModal(true);
-  console.log(product);
-}}
->
-  Delete
-</button>
-      </div>
-    </div>
-  ))}
-</div>
 
       {showModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
           <motion.div
-  initial={{
-    opacity: 0,
-    scale: 0.8,
-    y: 30,
-  }}
-  animate={{
-    opacity: 1,
-    scale: 1,
-    y: 0,
-  }}
-  transition={{
-    duration: 0.3,
-  }}
-  className="bg-white p-6 rounded-xl shadow-xl max-w-md w-full"
->
-            <h2 className="text-2xl font-bold mb-4">
-  Edit Product
-</h2>
+            initial={{
+              opacity: 0,
+              scale: 0.8,
+              y: 30,
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              y: 0,
+            }}
+            transition={{
+              duration: 0.3,
+            }}
+            className="bg-white p-6 rounded-xl shadow-xl max-w-md w-full"
+          >
+            <h2 className="text-2xl font-bold mb-4">Edit Product</h2>
 
-<label className="block mb-1 font-medium">
-  Brand
-</label>
+            <label className="block mb-1 font-medium">Brand</label>
 
-<input
-  className="w-full border p-2 rounded mb-3"
-  value={editingProduct?.brand || ""}
-  onChange={(e) =>
-    setEditingProduct({
-      ...editingProduct,
-      brand: e.target.value,
-    })
-  }
-/>
+            <input
+              className="w-full border p-2 rounded mb-3"
+              value={editingProduct?.brand || ""}
+              onChange={(e) =>
+                setEditingProduct({
+                  ...editingProduct,
+                  brand: e.target.value,
+                })
+              }
+            />
 
-<label className="block mb-1 font-medium">
-  Size (mm)
-</label>
+            <label className="block mb-1 font-medium">Size (mm)</label>
 
-<input
-  type="number"
-  className="w-full border p-2 rounded mb-3"
-  value={editingProduct?.size || ""}
-  onChange={(e) =>
-    setEditingProduct({
-      ...editingProduct,
-      size: e.target.value,
-    })
-  }
-/>
+            <input
+              type="number"
+              className="w-full border p-2 rounded mb-3"
+              value={editingProduct?.size || ""}
+              onChange={(e) =>
+                setEditingProduct({
+                  ...editingProduct,
+                  size: e.target.value,
+                })
+              }
+            />
 
-<label className="block mb-1 font-medium">
-  Pipe Type
-</label>
+            <label className="block mb-1 font-medium">Pipe Type</label>
 
-<input
-  className="w-full border p-2 rounded mb-3"
-  value={editingProduct?.pipe_type || ""}
-  onChange={(e) =>
-    setEditingProduct({
-      ...editingProduct,
-      pipe_type: e.target.value,
-    })
-  }
-/>
+            <input
+              className="w-full border p-2 rounded mb-3"
+              value={editingProduct?.pipe_type || ""}
+              onChange={(e) =>
+                setEditingProduct({
+                  ...editingProduct,
+                  pipe_type: e.target.value,
+                })
+              }
+            />
 
-<label className="block mb-1 font-medium">
-  Minimum Stock
-</label>
+            <label className="block mb-1 font-medium">Minimum Stock</label>
 
-<input
-  type="number"
-  className="w-full border p-2 rounded mb-3"
-  value={editingProduct?.min_stock || ""}
-  onChange={(e) =>
-    setEditingProduct({
-      ...editingProduct,
-      min_stock: e.target.value,
-    })
-  }
-/>
+            <input
+              type="number"
+              className="w-full border p-2 rounded mb-3"
+              value={editingProduct?.min_stock || ""}
+              onChange={(e) =>
+                setEditingProduct({
+                  ...editingProduct,
+                  min_stock: e.target.value,
+                })
+              }
+            />
 
-<label className="block mb-1 font-medium">
-  Unit Price (₹)
-</label>
+            <label className="block mb-1 font-medium">Unit Price (₹)</label>
 
-<input
-  type="number"
-  step="0.01"
-  className="w-full border p-2 rounded mb-3"
-  value={editingProduct?.unit_price || ""}
-  onChange={(e) =>
-    setEditingProduct({
-      ...editingProduct,
-      unit_price: e.target.value,
-    })
-  }
-/>
+            <input
+              type="number"
+              step="0.01"
+              className="w-full border p-2 rounded mb-3"
+              value={editingProduct?.unit_price || ""}
+              onChange={(e) =>
+                setEditingProduct({
+                  ...editingProduct,
+                  unit_price: e.target.value,
+                })
+              }
+            />
 
-<label className="block mb-1 font-medium">
-  Weight Per Unit (kg)
-</label>
+            <label className="block mb-1 font-medium">
+              Weight Per Unit (kg)
+            </label>
 
-<input
-  type="number"
-  step="0.01"
-  className="w-full border p-2 rounded mb-4"
-  value={editingProduct?.weight_per_unit || ""}
-  onChange={(e) =>
-    setEditingProduct({
-      ...editingProduct,
-      weight_per_unit: e.target.value,
-    })
-  }
-/>
+            <input
+              type="number"
+              step="0.01"
+              className="w-full border p-2 rounded mb-4"
+              value={editingProduct?.weight_per_unit || ""}
+              onChange={(e) =>
+                setEditingProduct({
+                  ...editingProduct,
+                  weight_per_unit: e.target.value,
+                })
+              }
+            />
             <div className="flex justify-end gap-2">
               <button
                 className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded cursor-pointer"
@@ -437,23 +427,23 @@ const handleDelete = async () => {
       {stockModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
           <motion.div
-  initial={{
-    opacity: 0,
-    scale: 0.8,
-    y: 30,
-  }}
-  animate={{
-    opacity: 1,
-    scale: 1,
-    y: 0,
-  }}
-  transition={{
-    type: "spring",
-    stiffness: 300,
-    damping: 25,
-  }}
-  className="bg-white p-6 rounded-xl shadow-xl max-w-md w-full"
->
+            initial={{
+              opacity: 0,
+              scale: 0.8,
+              y: 30,
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+              y: 0,
+            }}
+            transition={{
+              type: "spring",
+              stiffness: 300,
+              damping: 25,
+            }}
+            className="bg-white p-6 rounded-xl shadow-xl max-w-md w-full"
+          >
             <h2 className="text-2xl font-bold mb-4">Stock {stockAction}</h2>
 
             <p className="mb-4 text-gray-600">
@@ -499,30 +489,29 @@ const handleDelete = async () => {
         </div>
       )}
       <AnimatePresence>
-  {showDeleteModal && (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-
-      <motion.div
-        initial={{
-          opacity: 0,
-          scale: 0.8,
-          y: 30,
-        }}
-        animate={{
-          opacity: 1,
-          scale: 1,
-          y: 0,
-        }}
-        exit={{
-          opacity: 0,
-          scale: 0.8,
-        }}
-        transition={{
-          type: "spring",
-          stiffness: 300,
-          damping: 25,
-        }}
-        className="
+        {showDeleteModal && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <motion.div
+              initial={{
+                opacity: 0,
+                scale: 0.8,
+                y: 30,
+              }}
+              animate={{
+                opacity: 1,
+                scale: 1,
+                y: 0,
+              }}
+              exit={{
+                opacity: 0,
+                scale: 0.8,
+              }}
+              transition={{
+                type: "spring",
+                stiffness: 300,
+                damping: 25,
+              }}
+              className="
         bg-white
         p-6
         rounded-2xl
@@ -530,54 +519,44 @@ const handleDelete = async () => {
         w-[90%]
         max-w-md
         "
-      >
+            >
+              <h2 className="text-xl font-bold mb-3">Delete Product</h2>
 
-        <h2 className="text-xl font-bold mb-3">
-          Delete Product
-        </h2>
+              <p className="text-gray-600 mb-6">
+                Are you sure you want to delete this product?
+              </p>
 
-        <p className="text-gray-600 mb-6">
-          Are you sure you want to delete this product?
-        </p>
-
-        <div className="flex justify-end gap-3">
-
-          <button
-            onClick={() =>
-              setShowDeleteModal(false)
-            }
-            className="
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setShowDeleteModal(false)}
+                  className="
             px-4
             py-2
             rounded-lg
             bg-gray-200
             "
-          >
-            Cancel
-          </button>
+                >
+                  Cancel
+                </button>
 
-          <button
-  onClick={handleDelete}
-  className="
+                <button
+                  onClick={handleDelete}
+                  className="
   px-4
   py-2
   rounded-lg
   bg-red-600
   text-white
   "
->
-  Delete
-</button>
-
-        </div>
-
-      </motion.div>
-
+                >
+                  Delete
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
-  )}
-</AnimatePresence>
-    </div>
-    
   );
 }
 

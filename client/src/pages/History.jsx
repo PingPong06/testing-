@@ -134,11 +134,11 @@ return (
     </option>
 
     <option value="action_asc">
-       A-Z
+       a-z
     </option>
 
     <option value="action_desc">
-      Z-A
+      z-a
     </option>
 
   </select>

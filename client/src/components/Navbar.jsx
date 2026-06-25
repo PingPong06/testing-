@@ -110,7 +110,7 @@ function Navbar() {
     `
   }
 >
-  Transaction
+  Transactions (IN/OUT)
 </NavLink>
 
           <NavLink
@@ -310,7 +310,7 @@ cursor-pointer
     }`
   }
 >
-  Transactions
+  Transactions (IN/OUT)
 </NavLink>
 
           <NavLink

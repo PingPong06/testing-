@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { getDashboardStats, getProducts } from "../services/api";
-import Select from "react-select";
+import CreatableSelect from "react-select/creatable";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+
 import {
   Package,
   Boxes,
@@ -23,6 +25,9 @@ import {
 import { LabelList } from "recharts";
 
 function Dashboard() {
+
+  const navigate = useNavigate();
+
   const [stats, setStats] = useState({
     total_products: 0,
     total_stock: 0,
@@ -47,7 +52,17 @@ function Dashboard() {
 
   const [loading, setLoading] = useState(true);
 
+  const [searchText, setSearchText] = useState("");
+
   useEffect(() => {
+
+    const token = localStorage.getItem("token");
+
+  if (!token) {
+    navigate("/login");
+    return;
+  }
+
     const fetchDashboard = async () => {
       try {
 
@@ -97,7 +112,7 @@ function Dashboard() {
     };
 
     fetchDashboard();
-  }, []);
+  }, [navigate]);
 
   const handleBrandChange = (selected) => {
     setSelectedBrand(selected);
@@ -462,31 +477,31 @@ duration-200">
 </h2>
 
         <div className="grid lg:grid-cols-3 gap-6">
-          <Select
-            options={brands}
-            value={selectedBrand}
-            onChange={handleBrandChange}
-            placeholder="Search Brand..."
-            isSearchable
-          />
+          <CreatableSelect
+  options={brands}
+  value={selectedBrand}
+  onChange={handleBrandChange}
+  placeholder="Search or type Brand..."
+  isSearchable
+/>
 
-          <Select
-            options={pipeTypes}
-            value={selectedPipeType}
-            onChange={handlePipeTypeChange}
-            placeholder="Search Pipe Type..."
-            isSearchable
-            isDisabled={!selectedBrand}
-          />
+         <CreatableSelect
+  options={pipeTypes}
+  value={selectedPipeType}
+  onChange={handlePipeTypeChange}
+  placeholder="Search or type Pipe Type..."
+  isSearchable
+  isDisabled={!selectedBrand}
+/>
 
-          <Select
-            options={sizes}
-            value={selectedSize}
-            onChange={handleSizeChange}
-            placeholder="Search Size..."
-            isSearchable
-            isDisabled={!selectedPipeType}
-          />
+<CreatableSelect
+  options={sizes}
+  value={selectedSize}
+  onChange={handleSizeChange}
+  placeholder="Search or type Size..."
+  isSearchable
+  isDisabled={!selectedPipeType}
+/>
         </div>
       </div>
 
