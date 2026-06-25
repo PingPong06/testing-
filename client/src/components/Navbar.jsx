@@ -23,6 +23,8 @@ function Navbar() {
 
   const isLoggedIn = !!token;
   const isAdmin = role === "ADMIN";
+  const userId = Number(localStorage.getItem("userId"));
+    const isSuperAdmin = userId === 1;
   // console.log("Navbar isAdmin =", isAdmin);
 
   return (
@@ -171,27 +173,31 @@ function Navbar() {
   Add Product
 </NavLink>
 
-          {isAdmin && (
-            <NavLink
-  to="/users"
-  className={({ isActive }) =>
-    `
-    px-3
-    py-2
-    rounded-lg
-    transition
-    duration-150
-    ${
-      isActive
-        ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
-        : "hover:bg-slate-700 hover:text-blue-300"
+          {/* const userId = Number(localStorage.getItem("userId")); */}
+
+{/* const isSuperAdmin = userId === 1; */}
+
+    {isSuperAdmin && (
+  <NavLink
+    to="/users"
+    className={({ isActive }) =>
+      `
+      px-3
+      py-2
+      rounded-lg
+      transition
+      duration-150
+      ${
+        isActive
+          ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
+          : "hover:bg-slate-700 hover:text-blue-300"
+      }
+      `
     }
-    `
-  }
->
-  Users
-</NavLink>
-          )}
+  >
+    Users
+  </NavLink>
+)}
 
           {isLoggedIn ? (
             <div className="flex items-center gap-3">
@@ -214,7 +220,7 @@ font-medium
                   localStorage.removeItem("username");
                   localStorage.removeItem("role");
 
-                  window.location.reload();
+                  window.location.href = "/login";
                 }}
                 className="
 bg-red-500
@@ -348,22 +354,32 @@ cursor-pointer
 >
   Add Product
 </NavLink>
+{/* const userId = Number(localStorage.getItem("userId"));
 
-          {isAdmin && (
-            <NavLink
-  to="/users"
-  onClick={() => setMenuOpen(false)}
-  className={({ isActive }) =>
-    `px-3 py-2 rounded ${
-      isActive
-        ? "bg-blue-600 text-white"
-        : "hover:bg-slate-600"
-    }`
-  }
->
-  User
-</NavLink>
-          )}
+const isSuperAdmin = userId === 1; */}
+
+    {isSuperAdmin && (
+  <NavLink
+    to="/users"
+    className={({ isActive }) =>
+      `
+      px-3
+      py-2
+      rounded-lg
+      transition
+      duration-150
+      ${
+        isActive
+          ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white"
+          : "hover:bg-slate-700 hover:text-blue-300"
+      }
+      `
+    }
+  >
+    Users
+  </NavLink>
+)}
+
 
           {isLoggedIn ? (
             <>
