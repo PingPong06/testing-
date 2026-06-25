@@ -1,5 +1,63 @@
 const pool = require("../config/db");
 
+const XLSX = require("xlsx");
+
+const exportActivityHistoryExcel = async (req, res) => {
+  try {
+
+    const result = await pool.query(`
+      SELECT
+        id AS "ID",
+        product_id AS "Product ID",
+        action AS "Action",
+        description AS "Description",
+        COALESCE(username, 'System') AS "Username",
+        created_at AS "Date"
+      FROM inventory_history
+      ORDER BY created_at DESC
+    `);
+
+    const worksheet =
+      XLSX.utils.json_to_sheet(result.rows);
+
+    const workbook =
+      XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+      workbook,
+      worksheet,
+      "Activity History"
+    );
+
+    const buffer = XLSX.write(workbook, {
+      type: "buffer",
+      bookType: "xlsx",
+    });
+
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=activity_history.xlsx"
+    );
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+
+    res.send(buffer);
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      message:
+        "Failed to export activity history",
+    });
+
+  }
+};
+
 // Stock In
 
 const stockIn = async (req, res) => {
@@ -302,4 +360,5 @@ module.exports = {
   getTransactionHistory,
   getLowStockItems,
   getInventoryHistory,
+  exportActivityHistoryExcel,
 };

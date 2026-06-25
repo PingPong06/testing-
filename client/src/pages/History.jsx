@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 
-import { getActivityHistory } from "../services/api";
+import toast from "react-hot-toast";
+
+import {
+  getActivityHistory,
+  downloadActivityExcel,
+} from "../services/api";
 
 function History() {
 
@@ -90,6 +95,42 @@ const sortedHistory =
     }
   });
 
+const handleExcelDownload = async () => {
+
+  try {
+
+    const response =
+      await downloadActivityExcel();
+
+    const url =
+      window.URL.createObjectURL(
+        new Blob([response.data])
+      );
+
+    const link =
+      document.createElement("a");
+
+    link.href = url;
+
+    link.download =
+      "activity_history.xlsx";
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    link.remove();
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error(
+      "Failed to download Excel"
+    );
+
+  }
+};
 return (
 
   <div className="p-4 md:p-8">
@@ -152,6 +193,21 @@ return (
   <option value="UPDATE">UPDATE</option>
   <option value="DELETE">DELETE</option>
 </select>
+
+<button
+  onClick={handleExcelDownload}
+  className="
+  bg-green-600
+  hover:bg-green-700
+  text-white
+  px-4
+  py-2
+  rounded-lg
+  cursor-pointer
+  "
+>
+  Export Excel
+</button>
 
 </div>
 

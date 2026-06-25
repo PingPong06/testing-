@@ -3,6 +3,8 @@
   const verifyToken =
     require("../middleware/authMiddleware");
 
+
+
   const router = express.Router();
 
   const {
@@ -11,7 +13,8 @@
     getInventorySummary,
     getTransactionHistory,
     getLowStockItems,
-    getInventoryHistory
+    getInventoryHistory,
+    exportActivityHistoryExcel
   } = require('../controllers/inventoryController');
 
   router.post(
@@ -49,4 +52,12 @@
     verifyToken,
     getInventoryHistory
   );
+
+   router.get(
+    "/activity-history/excel",
+    verifyToken,
+    exportActivityHistoryExcel
+  );
+
+
   module.exports = router;

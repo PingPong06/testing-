@@ -102,3 +102,11 @@ export const resetPassword = (
       password,
     }
   );
+
+  export const downloadActivityExcel = () =>
+  API.get(
+    "/inventory/activity-history/excel",
+    {
+      responseType: "blob",
+    }
+  );
