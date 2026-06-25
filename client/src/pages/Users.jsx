@@ -22,6 +22,10 @@ if (role !== "ADMIN") {
     role: "USER",
   });
 
+  const currentUserId = Number(localStorage.getItem("userId"));
+
+const isSuperAdmin = currentUserId === 1;
+
 const [showDeleteModal, setShowDeleteModal] =
   useState(false);
 
@@ -185,21 +189,25 @@ const [userToDelete, setUserToDelete] =
                 <td className="p-3">{user.role}</td>
 
                 <td className="p-3">
-                  {user.role === "ADMIN" ? (
-                    <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                      Protected
-                    </span>
-                  ) : (
-                    <button
-                      onClick={() => {
-  setUserToDelete(user.id);
-  setShowDeleteModal(true);
-}}
-                      className="bg-red-500 text-white px-3 py-1 rounded cursor-pointer"
-                    >
-                      Delete
-                    </button>
-                  )}
+                {!isSuperAdmin || user.id === currentUserId ? (
+
+  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
+    Protected
+  </span>
+
+) : (
+
+  <button
+    onClick={() => {
+      setUserToDelete(user.id);
+      setShowDeleteModal(true);
+    }}
+    className="bg-red-500 text-white px-3 py-1 rounded cursor-pointer"
+  >
+    Delete
+  </button>
+
+)}
                 </td>
               </tr>
             ))}

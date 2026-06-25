@@ -2,6 +2,13 @@ const pool = require("../config/db");
 const bcrypt = require("bcryptjs");
 
 const createUser = async (req, res) => {
+
+if (req.user.id !== 1) {
+  return res.status(403).json({
+    message: "Only Super Admin can create users",
+  });
+}
+
   try {
     const { username, email, password, role } = req.body;
 
@@ -103,9 +110,22 @@ const getUsers = async (req, res) => {
 };
 
 const deleteUser = async (req, res) => {
+
+if (Number(req.user.id) !== 1) {
+  return res.status(403).json({
+    message: "Only Super Admin can delete users",
+  });
+}
+
   try {
 
     const { id } = req.params;
+
+    if (Number(id) === req.user.id) {
+  return res.status(400).json({
+    message: "You cannot delete yourself",
+  });
+}
 
     const user = await pool.query(
       `
@@ -122,11 +142,11 @@ const deleteUser = async (req, res) => {
       });
     }
 
-    if (user.rows[0].role === "ADMIN") {
-      return res.status(400).json({
-        message: "Admin account cannot be deleted",
-      });
-    }
+    // if (user.rows[0].role === "ADMIN") {
+    //   return res.status(400).json({
+    //     message: "Admin account cannot be deleted",
+    //   });
+    // }
 
     await pool.query(
       `

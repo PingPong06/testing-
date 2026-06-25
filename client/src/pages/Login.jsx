@@ -50,7 +50,7 @@ localStorage.setItem(
   toast.success("Login Successful");
 
 setTimeout(() => {
-  navigate("/");
+  window.location.href = "/";
 }, 1500);
   } catch (error) {
 

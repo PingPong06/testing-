@@ -2,16 +2,22 @@ import { Link, NavLink } from "react-router-dom";
 import { useState } from "react";
 import logo from "../assets/esscon-logo.png";
 import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
-<img
-  src={logo}
-  alt="logo"
-  className="h-20 border border-red-500"
-/>
+// const navigate = useNavigate();
+
+// <img
+//   src={logo}
+//   alt="logo"
+//   className="h-20 border border-red-500"
+// />
+
+
 
 function Navbar() {
   const token = localStorage.getItem("token");
   const role = localStorage.getItem("role");
+  // window.location.href = "/";
   const username = localStorage.getItem("username");
   const [menuOpen, setMenuOpen] = useState(false);
 

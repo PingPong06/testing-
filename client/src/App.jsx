@@ -14,6 +14,9 @@ import ForgotPassword
 from "./pages/ForgotPassword";
 import ResetPassword
 from "./pages/ResetPassword";
+import AdminRoute from "./components/AdminRoute";
+
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -22,13 +25,28 @@ function App() {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/inventory" element={<Inventory />} />
-        <Route path="/add-product" element={<AddProduct />} />
+        <Route
+  path="/add-product"
+  element={
+    <ProtectedRoute>
+      <AddProduct />
+    </ProtectedRoute>
+  }
+/>
         <Route path="/product/:id" element={<ProductDetails />} />
         <Route path="/history" element={<History />} />
         <Route path="/transactions" element={<TransactionHistory />} />
         <Route path="/reports" element={<Reports />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/users" element={<Users />} />
+        <Route
+  path="/users"
+  element={
+    <AdminRoute>
+      <Users />
+    </AdminRoute>
+  }
+/>
+        
         <Route
   path="/reset-password/:token"
   element={<ResetPassword />}
