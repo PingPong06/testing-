@@ -272,12 +272,12 @@ doc.text(
       align: "center",
     });
 
-    doc.text("Price", 500, y, {
+    doc.text("Price/Unit", 500, y, {
       width: 80,
       align: "center",
     });
 
-    doc.text("Weight", 570, y, {
+    doc.text("Weight/unit", 570, y, {
       width: 100,
       align: "center",
     });
