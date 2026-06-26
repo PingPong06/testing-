@@ -126,9 +126,8 @@ const forgotPassword = async (req, res) => {
   
    const transporter = nodemailer.createTransport({
   host: "smtp-relay.brevo.com",
-  port: 587,
-  secure: false, // true only for 465
-  requireTLS: true,
+  port: 2525,
+  secure: false,
 
   auth: {
     user: process.env.BREVO_SMTP_USER,
