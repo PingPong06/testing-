@@ -54,7 +54,7 @@ function Navbar() {
 
         <div className="hidden md:flex items-center gap-4">
           <NavLink
-  to="/"
+  to="/dashboard"
   className={({ isActive }) =>
     `
     px-3
@@ -272,7 +272,7 @@ cursor-pointer
     >
       <div className="flex flex-col gap-2 p-2">
           <NavLink
-  to="/"
+  to="/dashboard"
   onClick={() => setMenuOpen(false)}
   className={({ isActive }) =>
     `px-3 py-2 rounded ${

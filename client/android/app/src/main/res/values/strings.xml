@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Esscon</string>
+    <string name="title_activity_main">Esscon</string>
+    <string name="package_name">com.esscon_pipes.app</string>
+    <string name="custom_url_scheme">com.esscon_pipes.app</string>
+</resources>
