@@ -81,11 +81,10 @@ const forgotPassword = async (req, res) => {
       `,
       [email]
     );
-       console.log(
-      "Users found:",
-      user.rows.length
-    );
-
+  console.log(
+  "Users found:",
+  userResult.rows.length
+);
 
     if (userResult.rows.length === 0) {
       return res.status(404).json({
@@ -95,10 +94,10 @@ const forgotPassword = async (req, res) => {
 
     const user = userResult.rows[0];
 
-    console.log(
-      "User found:",
-      user.rows[0].email
-    );
+  console.log(
+  "User found:",
+  user.email
+);
 
     const resetToken =
       crypto.randomBytes(32).toString("hex");
@@ -160,8 +159,8 @@ transporter.verify((error, success) => {
     );
 
 
-    await transporter.sendMail({
-  from: process.env.EMAIL_USER,
+await transporter.sendMail({
+  from: process.env.BREVO_SMTP_USER,
   to: email,
   subject: "Password Reset",
   html: `
