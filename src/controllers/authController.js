@@ -111,8 +111,12 @@ const forgotPassword = async (req, res) => {
 //   process.env.EMAIL_PASS?.length
 // );
 
-    const transporter = nodemailer.createTransport({
-  service: "gmail",
+   const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false, // true only for 465
+  requireTLS: true,
+
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
