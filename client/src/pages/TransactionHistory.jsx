@@ -82,18 +82,29 @@ const sortedTransactions =
     </h1>
 
     <div className="flex flex-wrap gap-4 mb-6">
+      <label className="block mb-1 font-medium">
+    From
+  </label>
+
 
       <input
         type="date"
         value={fromDate}
         onChange={(e) => setFromDate(e.target.value)}
+        placeholder="From"
         className="border rounded-lg px-4 py-2"
       />
+
+      <label className="block mb-1 font-medium">
+    To
+  </label>
+
 
       <input
         type="date"
         value={toDate}
         onChange={(e) => setToDate(e.target.value)}
+        placeholder="To"
         className="border rounded-lg px-4 py-2"
       />
 
