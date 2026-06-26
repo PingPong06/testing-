@@ -71,6 +71,8 @@ const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
+    console.log("Email received:", email);
+
     const userResult = await pool.query(
       `
       SELECT *
@@ -79,6 +81,11 @@ const forgotPassword = async (req, res) => {
       `,
       [email]
     );
+       console.log(
+      "Users found:",
+      user.rows.length
+    );
+
 
     if (userResult.rows.length === 0) {
       return res.status(404).json({
@@ -87,6 +94,11 @@ const forgotPassword = async (req, res) => {
     }
 
     const user = userResult.rows[0];
+
+    console.log(
+      "User found:",
+      user.rows[0].email
+    );
 
     const resetToken =
       crypto.randomBytes(32).toString("hex");
@@ -112,6 +124,7 @@ const forgotPassword = async (req, res) => {
 //   process.env.EMAIL_PASS?.length
 // );
 
+  
    const transporter = nodemailer.createTransport({
   host: "smtp-relay.brevo.com",
   port: 587,
@@ -142,6 +155,11 @@ transporter.verify((error, success) => {
 // console.log("User found:", user.username);
 // console.log("Generated Token:", resetToken);
 
+  console.log(
+      "Sending reset email..."
+    );
+
+
     await transporter.sendMail({
   from: process.env.EMAIL_USER,
   to: email,
@@ -158,6 +176,10 @@ transporter.verify((error, success) => {
     <p>This link expires in 15 minutes.</p>
   `,
 });
+
+  console.log(
+      "Reset email sent successfully!"
+    );
 
     res.status(200).json({
       message: "Password reset email sent",
