@@ -14,6 +14,7 @@ const {
   createUser,
   getUsers,
   deleteUser,
+   updateUserEmail,
 } = require("../controllers/userController");
 
 router.get(
@@ -35,6 +36,12 @@ router.post(
   verifyToken,
   isAdmin,
   createUser
+);
+
+router.put(
+  "/:id/email",
+  verifyToken,
+  updateUserEmail
 );
 
 module.exports = router;

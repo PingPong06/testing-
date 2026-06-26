@@ -4,6 +4,10 @@ const API = axios.create({
   baseURL: "https://pvc-inventory.onrender.com",
 });
 
+// const API = axios.create({
+//   baseURL: "http://localhost:5000",
+// });
+
 API.interceptors.request.use(
   (config) => {
 
@@ -110,3 +114,11 @@ export const resetPassword = (
       responseType: "blob",
     }
   );
+
+  export const updateUserEmail = async (id, email) =>
+  API.put(
+    `/users/${id}/email`,
+    { email }
+  );
+
+  

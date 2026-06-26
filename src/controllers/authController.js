@@ -67,6 +67,7 @@ const login = async (req, res) => {
 };
 
 const forgotPassword = async (req, res) => {
+  console.log("Forgot Password button clicked");
   try {
     const { email } = req.body;
 
@@ -112,15 +113,26 @@ const forgotPassword = async (req, res) => {
 // );
 
    const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
+  host: "smtp-relay.brevo.com",
   port: 587,
   secure: false, // true only for 465
   requireTLS: true,
 
   auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
+    user: process.env.BREVO_SMTP_USER,
+    pass: process.env.BREVO_SMTP_PASS,
   },
+});
+
+console.log("EMAIL_USER:", process.env.EMAIL_USER);
+console.log("EMAIL_PASS:", process.env.EMAIL_PASS);
+
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("SMTP Error:", error);
+  } else {
+    console.log("SMTP Server is ready");
+  }
 });
 
     const resetLink =

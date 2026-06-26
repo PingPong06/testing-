@@ -171,9 +171,42 @@ if (Number(req.user.id) !== 1) {
   }
 };
 
+const updateUserEmail = async (req, res) => {
+
+  try {
+
+    const { id } = req.params;
+
+    const { email } = req.body;
+
+    const result = await pool.query(
+      `
+      UPDATE users
+      SET email = $1
+      WHERE id = $2
+      RETURNING *
+      `,
+      [email, id]
+    );
+
+    res.status(200).json(
+      result.rows[0]
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      message:
+        "Failed to update email",
+    });
+  }
+};
+
 module.exports = {
   createUser,
 getUsers,
 deleteUser,
-
+updateUserEmail,
 };

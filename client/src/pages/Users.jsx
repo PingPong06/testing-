@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
-import { getUsers, createUser, deleteUser } from "../services/api";
+import { getUsers, createUser, deleteUser, updateUserEmail } from "../services/api";
 import toast from "react-hot-toast"
 import { motion } from "framer-motion";
 
 import { Navigate } from "react-router-dom";
+import { FaEdit } from "react-icons/fa";
 
 const Users = () => {
 
@@ -98,6 +99,44 @@ const [userToDelete, setUserToDelete] =
   });
 };
 
+const handleEditEmail = async (user) => {
+
+  const newEmail = window.prompt(
+    "Enter new email:",
+    user.email
+  );
+
+  if (
+    !newEmail ||
+    newEmail === user.email
+  ) {
+    return;
+  }
+
+  try {
+
+    await updateUserEmail(
+      user.id,
+      newEmail
+    );
+
+    toast.success(
+      "Email updated successfully"
+    );
+
+    fetchUsers();
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error(
+      error.response?.data?.message ||
+      "Failed to update email"
+    );
+  }
+};
+
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold mb-6">Users Management</h1>
@@ -177,6 +216,8 @@ const [userToDelete, setUserToDelete] =
 
               <th className="text-left p-3">Role</th>
 
+              <th className="text-left p-3">e-mail</th>
+
               <th className="text-left p-3">Actions</th>
             </tr>
           </thead>
@@ -187,6 +228,25 @@ const [userToDelete, setUserToDelete] =
                 <td className="p-3">{user.username}</td>
 
                 <td className="p-3">{user.role}</td>
+
+                <td className="p-3">
+  <div className="flex items-center gap-2">
+    <span>
+      {user.email}
+    </span>
+
+    <button
+      onClick={() => handleEditEmail(user)}
+      className="
+        text-blue-600
+        hover:text-blue-800
+        cursor-pointer
+      "
+    >
+      <FaEdit />
+    </button>
+  </div>
+</td>
 
                 <td className="p-3">
                 {!isSuperAdmin || user.id === currentUserId ? (
