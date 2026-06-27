@@ -67,11 +67,11 @@ const login = async (req, res) => {
 };
 
 const forgotPassword = async (req, res) => {
-  console.log("Forgot Password button clicked");
+  // console.log("Forgot Password button clicked");
   try {
     const { email } = req.body;
 
-    console.log("Email received:", email);
+    // console.log("Email received:", email);
 
     const userResult = await pool.query(
       `
@@ -81,10 +81,10 @@ const forgotPassword = async (req, res) => {
       `,
       [email]
     );
-  console.log(
-  "Users found:",
-  userResult.rows.length
-);
+//   console.log(
+//   "Users found:",
+//   userResult.rows.length
+// );
 
     if (userResult.rows.length === 0) {
       return res.status(404).json({
@@ -94,10 +94,10 @@ const forgotPassword = async (req, res) => {
 
     const user = userResult.rows[0];
 
-  console.log(
-  "User found:",
-  user.email
-);
+//   console.log(
+//   "User found:",
+//   user.email
+// );
 
     const resetToken =
       crypto.randomBytes(32).toString("hex");
@@ -123,43 +123,48 @@ const forgotPassword = async (req, res) => {
 //   process.env.EMAIL_PASS?.length
 // );
 
-  
-   const transporter = nodemailer.createTransport({
-  host: "smtp-relay.brevo.com",
-  port: 587,
-  secure: false,
+//     console.log(
+//   "BREVO_SMTP_USER:",
+//   process.env.BREVO_SMTP_USER
+// );
 
-  auth: {
-    user: process.env.BREVO_SMTP_USER,
-    pass: process.env.BREVO_SMTP_PASS,
-  },
+// console.log(
+//   "BREVO_SMTP_PASS length:",
+//   process.env.BREVO_SMTP_PASS?.length
+// );
+
+
+const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
 });
+// console.log("EMAIL_USER:", process.env.EMAIL_USER);
+// console.log("EMAIL_PASS:", process.env.EMAIL_PASS);
 
-console.log("EMAIL_USER:", process.env.EMAIL_USER);
-console.log("EMAIL_PASS:", process.env.EMAIL_PASS);
-
-transporter.verify((error, success) => {
-  if (error) {
-    console.error("SMTP Error:", error);
-  } else {
-    console.log("SMTP Server is ready");
-  }
-});
+// transporter.verify((error, success) => {
+//   if (error) {
+//     console.error("SMTP Error:", error);
+//   } else {
+//     console.log("SMTP Server is ready");
+//   }
+// });
 
     const resetLink =
       `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-//       console.log("Email received:", email);
-// console.log("User found:", user.username);
-// console.log("Generated Token:", resetToken);
 
-  console.log(
-      "Sending reset email..."
-    );
+  // console.log(
+  //     "Sending reset email..."
+  //   );
 
 
 await transporter.sendMail({
-  from: process.env.BREVO_SMTP_USER,
+  from: process.env.EMAIL_USER,
   to: email,
   subject: "Password Reset",
   html: `
