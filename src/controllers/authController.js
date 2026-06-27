@@ -141,6 +141,8 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
+
+  connectionTimeout: 10000,
 });
 // console.log("EMAIL_USER:", process.env.EMAIL_USER);
 // console.log("EMAIL_PASS:", process.env.EMAIL_PASS);
