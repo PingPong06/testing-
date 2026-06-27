@@ -2,7 +2,13 @@ const pool = require("../config/db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const nodemailer = require("nodemailer");
+// const nodemailer = require("nodemailer");
+
+const { Resend } = require("resend");
+
+const resend = new Resend(
+  process.env.RESEND_API_KEY
+);
 
 const login = async (req, res) => {
   try {
@@ -150,15 +156,19 @@ const forgotPassword = async (req, res) => {
 // );
 
 
-const transporter = nodemailer.createTransport({
-    host: "smtp.gmail.com",
-    port: 465,
-    secure: true,
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-    },
-});
+// const transporter = nodemailer.createTransport({
+//     host: "smtp.gmail.com",
+//     port: 465,
+//     secure: true,
+//     auth: {
+//         user: process.env.EMAIL_USER,
+//         pass: process.env.EMAIL_PASS,
+//     },
+// });
+
+
+
+
 // console.log("EMAIL_USER:", process.env.EMAIL_USER);
 // console.log("EMAIL_PASS:", process.env.EMAIL_PASS);
 
@@ -179,22 +189,43 @@ const transporter = nodemailer.createTransport({
   //   );
 
 
-await transporter.sendMail({
-  from: process.env.EMAIL_USER,
-  to: adminEmail,
-  subject: "Password Reset",
-  html: `
-    <h3>PVC Inventory Password Reset</h3>
+const { data, error } =
+  await resend.emails.send({
 
-    <p>Click the link below:</p>
+    from: "onboarding@resend.dev",
 
-    <a href="${resetLink}">
-      Reset Password
-    </a>
+    to: adminEmail,
 
-    <p>This link expires in 15 minutes.</p>
-  `,
-});
+    subject: "PVC Inventory Password Reset",
+
+    html: `
+      <h3>PVC Inventory Password Reset</h3>
+
+      <p>Click the link below:</p>
+
+      <a href="${resetLink}">
+        Reset Password
+      </a>
+
+      <p>
+        This link expires in 15 minutes.
+      </p>
+    `,
+  });
+
+  if (error) {
+  console.error(error);
+
+  return res.status(500).json({
+    message:
+      "Failed to send email",
+  });
+}
+
+console.log(
+  "Reset email sent:",
+  data
+);
 
   console.log(
       "Reset email sent successfully!"
