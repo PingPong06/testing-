@@ -46,6 +46,10 @@ app.use(
   })
 );
 
+app.get("/test", (req, res) => {
+  res.json({ message: "Backend is working" });
+});
+
 console.log(
   "FRONTEND_URL:",
   process.env.FRONTEND_URL
