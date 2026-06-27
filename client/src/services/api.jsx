@@ -91,21 +91,21 @@ export const deleteUser = (id) => {
   return API.delete(`/users/${id}`);
 };
 
-// export const forgotPassword = (email) =>
-//   API.post("/auth/forgot-password", {
-//     email,
-//   });
+export const forgotPassword = (email) =>
+  API.post("/auth/forgot-password", {
+    email,
+  });
 
-// export const resetPassword = (
-//   token,
-//   password
-// ) =>
-//   API.post(
-//     `/auth/reset-password/${token}`,
-//     {
-//       password,
-//     }
-//   );
+export const resetPassword = (
+  token,
+  password
+) =>
+  API.post(
+    `/auth/reset-password/${token}`,
+    {
+      password,
+    }
+  );
 
   export const downloadActivityExcel = () =>
   API.get(
