@@ -29,9 +29,9 @@ app.use(
   })
 );
 
-app.get("/test", (req, res) => {
-  res.json({ message: "Backend is working" });
-});
+// app.get("/test", (req, res) => {
+//   res.json({ message: "Backend is working" });
+// });
 
 console.log(
   "FRONTEND_URL:",

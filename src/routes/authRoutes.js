@@ -10,15 +10,15 @@ const {
 
 router.post("/login", login);
 
-// router.post(
-//   "/forgot-password",
-//   forgotPassword
-// );
+router.post(
+  "/forgot-password",
+  forgotPassword
+);
 
-// router.post(
-//   "/reset-password/:token",
-//   resetPassword
-// );
+router.post(
+  "/reset-password/:token",
+  resetPassword
+);
 
 // router.put("/:id/username", verifyToken, isSuperAdmin, updateUsername);
 

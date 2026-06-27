@@ -114,14 +114,14 @@ setTimeout(() => {
           Login
         </button>
 
-        {/* <p className="text-red-500 font-bold">
+        <p className="text-red-500 font-bold">
   <Link
     to="/forgot-password"
     className="text-blue-600 hover:underline"
   >
     Forgot Password?
   </Link>
-</p> */}
+</p>
 
       </form>
     </div>

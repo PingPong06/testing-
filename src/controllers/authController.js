@@ -2,7 +2,7 @@ const pool = require("../config/db");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-// const nodemailer = require("nodemailer");
+const nodemailer = require("nodemailer");
 
 const login = async (req, res) => {
   try {
@@ -73,207 +73,216 @@ const isMatch = await bcrypt.compare(
   }
 };
 
-// const forgotPassword = async (req, res) => {
-//   // console.log("Forgot Password button clicked");
-//   try {
-//     const { email } = req.body;
+const forgotPassword = async (req, res) => {
+  // console.log("Forgot Password button clicked");
+  try {
+    const { email } = req.body;
 
-//     // console.log("Email received:", email);
+    // console.log("Email received:", email);
 
-//     const userResult = await pool.query(
-//       `
-//       SELECT *
-//       FROM users
-//       WHERE email = $1
-//       `,
-//       [email]
-//     );
-// //   console.log(
-// //   "Users found:",
-// //   userResult.rows.length
-// // );
+    const userResult = await pool.query(
+      `
+      SELECT *
+      FROM users
+      WHERE email = $1
+      `,
+      [email]
+    );
+//   console.log(
+//   "Users found:",
+//   userResult.rows.length
+// );
 
-//     if (userResult.rows.length === 0) {
-//       return res.status(404).json({
-//         message: "Email not found",
-//       });
-//     }
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({
+        message: "Email not found",
+      });
+    }
 
-//     const user = userResult.rows[0];
+    const user = userResult.rows[0];
 
-// //   console.log(
-// //   "User found:",
-// //   user.email
-// // );
+        if (user.role !== "SUPER_ADMIN") {
+  return res.status(403).json({
+    message:
+      "Password reset is available only for the administrator.",
+  });
+}
 
-//     const resetToken =
-//       crypto.randomBytes(32).toString("hex");
-
-//     const expiry = new Date(
-//       Date.now() + 15 * 60 * 1000
-//     );
-
-//     await pool.query(
-//       `
-//       UPDATE users
-//       SET
-//         reset_token = $1,
-//         reset_token_expiry = $2
-//       WHERE id = $3
-//       `,
-//       [resetToken, expiry, user.id]
-//     );
-
-// //     console.log("EMAIL_USER:", process.env.EMAIL_USER);
-// // console.log(
-// //   "EMAIL_PASS LENGTH:",
-// //   process.env.EMAIL_PASS?.length
-// // );
-
-// //     console.log(
-// //   "BREVO_SMTP_USER:",
-// //   process.env.BREVO_SMTP_USER
-// // );
-
-// // console.log(
-// //   "BREVO_SMTP_PASS length:",
-// //   process.env.BREVO_SMTP_PASS?.length
-// // );
-
-
-// const transporter = nodemailer.createTransport({
-//     host: "smtp.gmail.com",
-//     port: 465,
-//     secure: true,
-//     auth: {
-//         user: process.env.EMAIL_USER,
-//         pass: process.env.EMAIL_PASS,
-//     },
-// });
-// // console.log("EMAIL_USER:", process.env.EMAIL_USER);
-// // console.log("EMAIL_PASS:", process.env.EMAIL_PASS);
-
-// // transporter.verify((error, success) => {
-// //   if (error) {
-// //     console.error("SMTP Error:", error);
-// //   } else {
-// //     console.log("SMTP Server is ready");
-// //   }
-// // });
-
-//     const resetLink =
-//       `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
-
-
-//   // console.log(
-//   //     "Sending reset email..."
-//   //   );
-
-
-// await transporter.sendMail({
-//   from: process.env.EMAIL_USER,
-//   to: email,
-//   subject: "Password Reset",
-//   html: `
-//     <h3>PVC Inventory Password Reset</h3>
-
-//     <p>Click the link below:</p>
-
-//     <a href="${resetLink}">
-//       Reset Password
-//     </a>
-
-//     <p>This link expires in 15 minutes.</p>
-//   `,
-// });
+  const adminEmail = user.email;
 
 //   console.log(
-//       "Reset email sent successfully!"
-//     );
+//   "User found:",
+//   user.email
+// );
 
-//     res.status(200).json({
-//       message: "Password reset email sent",
-//     });
+    const resetToken =
+      crypto.randomBytes(32).toString("hex");
 
-//   } catch (error) {
+    const expiry = new Date(
+      Date.now() + 15 * 60 * 1000
+    );
 
-//     console.error(error);
+    await pool.query(
+      `
+      UPDATE users
+      SET
+        reset_token = $1,
+        reset_token_expiry = $2
+      WHERE id = $3
+      `,
+      [resetToken, expiry, user.id]
+    );
 
-//     res.status(500).json({
-//       message: "Failed to send reset email",
-//     });
+//     console.log("EMAIL_USER:", process.env.EMAIL_USER);
+// console.log(
+//   "EMAIL_PASS LENGTH:",
+//   process.env.EMAIL_PASS?.length
+// );
 
+//     console.log(
+//   "BREVO_SMTP_USER:",
+//   process.env.BREVO_SMTP_USER
+// );
+
+// console.log(
+//   "BREVO_SMTP_PASS length:",
+//   process.env.BREVO_SMTP_PASS?.length
+// );
+
+
+const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 465,
+    secure: true,
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+    },
+});
+// console.log("EMAIL_USER:", process.env.EMAIL_USER);
+// console.log("EMAIL_PASS:", process.env.EMAIL_PASS);
+
+// transporter.verify((error, success) => {
+//   if (error) {
+//     console.error("SMTP Error:", error);
+//   } else {
+//     console.log("SMTP Server is ready");
 //   }
-// };
+// });
 
-// const resetPassword = async (req, res) => {
-//   try {
+    const resetLink =
+      `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-//     const { token } = req.params;
 
-//     const { password } = req.body;
+  // console.log(
+  //     "Sending reset email..."
+  //   );
 
-//     const result = await pool.query(
-//       `
-//       SELECT *
-//       FROM users
-//       WHERE reset_token = $1
-//       `,
-//       [token]
-//     );
 
-//     if (result.rows.length === 0) {
-//       return res.status(400).json({
-//         message: "Invalid token",
-//       });
-//     }
+await transporter.sendMail({
+  from: process.env.EMAIL_USER,
+  to: adminEmail,
+  subject: "Password Reset",
+  html: `
+    <h3>PVC Inventory Password Reset</h3>
 
-//     const user = result.rows[0];
+    <p>Click the link below:</p>
 
-//     if (
-//       !user.reset_token_expiry ||
-//       new Date(user.reset_token_expiry) <
-//         new Date()
-//     ) {
-//       return res.status(400).json({
-//         message: "Token expired",
-//       });
-//     }
+    <a href="${resetLink}">
+      Reset Password
+    </a>
 
-//     const hashedPassword =
-//       await bcrypt.hash(password, 10);
+    <p>This link expires in 15 minutes.</p>
+  `,
+});
 
-//     await pool.query(
-//       `
-//       UPDATE users
-//       SET
-//         password = $1,
-//         reset_token = NULL,
-//         reset_token_expiry = NULL
-//       WHERE id = $2
-//       `,
-//       [hashedPassword, user.id]
-//     );
+  console.log(
+      "Reset email sent successfully!"
+    );
 
-//     res.status(200).json({
-//       message: "Password reset successful",
-//     });
+    res.status(200).json({
+      message: "Password reset email sent",
+    });
 
-//   } catch (error) {
+  } catch (error) {
 
-//     console.error(error);
+    console.error(error);
 
-//     res.status(500).json({
-//       message: "Failed to reset password",
-//     });
+    res.status(500).json({
+      message: "Failed to send reset email",
+    });
 
-//   }
-// };
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+
+    const { token } = req.params;
+
+    const { password } = req.body;
+
+    const result = await pool.query(
+      `
+      SELECT *
+      FROM users
+      WHERE reset_token = $1
+      `,
+      [token]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({
+        message: "Invalid token",
+      });
+    }
+
+    const user = result.rows[0];
+
+    if (
+      !user.reset_token_expiry ||
+      new Date(user.reset_token_expiry) <
+        new Date()
+    ) {
+      return res.status(400).json({
+        message: "Token expired",
+      });
+    }
+
+    const hashedPassword =
+      await bcrypt.hash(password, 10);
+
+    await pool.query(
+      `
+      UPDATE users
+      SET
+        password = $1,
+        reset_token = NULL,
+        reset_token_expiry = NULL
+      WHERE id = $2
+      `,
+      [hashedPassword, user.id]
+    );
+
+    res.status(200).json({
+      message: "Password reset successful",
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      message: "Failed to reset password",
+    });
+
+  }
+};
 
 
 
 module.exports = {
   login,
-  // forgotPassword,
-  // resetPassword,
+  forgotPassword,
+  resetPassword,
 };
