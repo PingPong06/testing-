@@ -1,12 +1,16 @@
-  const isAdmin = (req, res, next) => {
+const isSuperAdmin = (req, res, next) => {
 
-  if (req.user.role !== "ADMIN") {
+  console.log("User Role from Token:", req.user.role);
+
+  if (req.user.role !== "SUPER_ADMIN") {
     return res.status(403).json({
-      message: "Access denied",
+      message: "Only Super Admin can perform this action",
     });
   }
+
+  
 
   next();
 };
 
-module.exports = isAdmin;
+module.exports = isSuperAdmin;

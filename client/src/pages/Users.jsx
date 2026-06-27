@@ -1,18 +1,28 @@
 import { useEffect, useState } from "react";
-import { getUsers, createUser, deleteUser, updateUserEmail } from "../services/api";
+import { getUsers, createUser, deleteUser, updateUsername, updateUserPassword, updateUserEmail } from "../services/api";
 import toast from "react-hot-toast"
 import { motion } from "framer-motion";
-
+import EditEmailModal from "../components/EditEmailModal";
 import { Navigate } from "react-router-dom";
-import { FaEdit } from "react-icons/fa";
+import {
+  FaEdit,
+  FaEllipsisV,
+  FaKey,
+  FaTrash,
+  FaShieldAlt,
+} from "react-icons/fa";
+import EditUsernameModal
+from "../components/EditUsernameModal";
+import ChangePasswordModal
+from "../components/ChangePasswordModal";
 
 const Users = () => {
 
   const role = localStorage.getItem("role");
 
-if (role !== "ADMIN") {
-  return <Navigate to="/" />;
-}
+// if (role !== "ADMIN") {
+//   return <Navigate to="/" />;
+// }
 
   const [users, setUsers] = useState([]);
 
@@ -23,6 +33,19 @@ if (role !== "ADMIN") {
     role: "USER",
   });
 
+  const [editingUsername, setEditingUsername] =
+  useState(null);
+
+const [editingEmail, setEditingEmail] =
+  useState(null);
+
+// const [showPasswordModal, setShowPasswordModal] =
+//   useState(false);
+
+// const [userToChangePassword,
+//   setUserToChangePassword] =
+//   useState(null);
+
   const currentUserId = Number(localStorage.getItem("userId"));
 
 const isSuperAdmin = currentUserId === 1;
@@ -32,6 +55,34 @@ const [showDeleteModal, setShowDeleteModal] =
 
 const [userToDelete, setUserToDelete] =
   useState(null);
+
+  const [openMenu, setOpenMenu] =
+  useState(null);
+
+  const [
+  showEditEmailModal,
+  setShowEditEmailModal,
+] = useState(false);
+
+const [showEditUsernameModal, setShowEditUsernameModal] =
+  useState(false);
+
+  const [
+  showPasswordModal,
+  setShowPasswordModal
+] = useState(false);
+
+const [
+  userToChangePassword,
+  setUserToChangePassword
+] = useState(null);
+
+const [
+  selectedUser,
+  setSelectedUser,
+] = useState(null);
+
+
 
   const fetchUsers = async () => {
     try {
@@ -74,7 +125,7 @@ const [userToDelete, setUserToDelete] =
   const handleCreateUser = async () => {
     try {
 
-      console.log(formData);
+      // console.log(formData);
       await createUser(formData);
 
       setFormData({
@@ -99,24 +150,40 @@ const [userToDelete, setUserToDelete] =
   });
 };
 
-const handleEditEmail = async (user) => {
+const handleEditUsername = (user) => {
 
-  const newEmail = window.prompt(
-    "Enter new email:",
-    user.email
-  );
+  // console.log("Edit clicked:", user);
 
-  if (
-    !newEmail ||
-    newEmail === user.email
-  ) {
-    return;
-  }
+  setSelectedUser(user);
+
+  setShowEditUsernameModal(true);
+
+};
+
+const handleChangePassword = (
+  user
+) => {
+
+  setUserToChangePassword(user);
+
+  setShowPasswordModal(true);
+
+};  
+const handleEditEmail = (user) => {
+
+  setSelectedUser(user);
+
+  setShowEditEmailModal(true);
+
+};
+
+const handleSaveEmail =
+async (newEmail) => {
 
   try {
 
     await updateUserEmail(
-      user.id,
+      selectedUser.id,
       newEmail
     );
 
@@ -126,15 +193,73 @@ const handleEditEmail = async (user) => {
 
     fetchUsers();
 
-  } catch (error) {
+    setShowEditEmailModal(false);
 
-    console.error(error);
+  } catch (error) {
 
     toast.error(
       error.response?.data?.message ||
-      "Failed to update email"
+      "Update failed"
     );
+
   }
+
+};
+
+const handleSaveUsername =
+async (newUsername) => {
+
+  try {
+
+    await updateUsername(
+      selectedUser.id,
+      newUsername
+    );
+
+    toast.success(
+      "Username updated successfully"
+    );
+
+    fetchUsers();
+
+    setShowEditUsernameModal(false);
+
+  } catch (error) {
+
+    toast.error(
+      error.response?.data?.message ||
+      "Update failed"
+    );
+
+  }
+
+};
+
+const handleSavePassword =
+async (newPassword) => {
+
+  try {
+
+    await updateUserPassword(
+      userToChangePassword.id,
+      newPassword
+    );
+
+    toast.success(
+      "Password updated successfully"
+    );
+
+    setShowPasswordModal(false);
+
+  } catch (error) {
+
+    toast.error(
+      error.response?.data?.message ||
+      "Failed to update password"
+    );
+
+  }
+
 };
 
   return (
@@ -208,7 +333,7 @@ const handleEditEmail = async (user) => {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded shadow">
+      <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
           <thead>
             <tr className="border-b">
@@ -218,63 +343,301 @@ const handleEditEmail = async (user) => {
 
               <th className="text-left p-3">e-mail</th>
 
-              <th className="text-left p-3">Actions</th>
+              <th className="p-3 w-12"></th>
             </tr>
           </thead>
 
           <tbody>
             {users.map((user) => (
+
               <tr key={user.id} className="border-b">
-                <td className="p-3">{user.username}</td>
+                <td className="p-3 flex items-center gap-2">
+  <span>{user.username}</span>
+</td>
 
                 <td className="p-3">{user.role}</td>
 
                 <td className="p-3">
-  <div className="flex items-center gap-2">
-    <span>
-      {user.email}
-    </span>
-
-    <button
-      onClick={() => handleEditEmail(user)}
-      className="
-        text-blue-600
-        hover:text-blue-800
-        cursor-pointer
-      "
-    >
-      <FaEdit />
-    </button>
-  </div>
+  {user.email || "No Email"}
 </td>
 
-                <td className="p-3">
-                {!isSuperAdmin || user.id === currentUserId ? (
-
-  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-    Protected
-  </span>
-
-) : (
+              <td className="relative p-3">
 
   <button
-    onClick={() => {
-      setUserToDelete(user.id);
-      setShowDeleteModal(true);
-    }}
-    className="bg-red-500 text-white px-3 py-1 rounded cursor-pointer"
+    onClick={() =>
+      setOpenMenu(
+        openMenu === user.id
+          ? null
+          : user.id
+      )
+    }
+    className="
+      p-2
+      hover:bg-gray-100
+      rounded-full
+    "
   >
-    Delete
+    <FaEllipsisV />
   </button>
 
-)}
-                </td>
+  {openMenu === user.id && (
+
+    <div
+      className="
+        absolute
+        right-0
+        mt-2
+        w-48
+        bg-white
+        border
+        rounded-lg
+        shadow-lg
+        z-50
+      "
+    >
+
+      <button
+  onClick={() => {
+    handleEditUsername(user);
+    setOpenMenu(null);
+  }}
+  className="
+    w-full
+    px-4
+    py-2
+    flex
+    items-center
+    gap-2
+    hover:bg-gray-100
+  "
+>
+  <FaEdit />
+  Edit Username
+</button>
+
+      <button
+        onClick={() => {
+          handleEditEmail(user);
+          setOpenMenu(null);
+        }}
+        className="
+          w-full
+          px-4
+          py-2
+          flex
+          items-center
+          gap-2
+          hover:bg-gray-100
+        "
+      >
+        <FaEdit />
+        Edit Email
+      </button>
+
+      <button
+        onClick={() => {
+          handleChangePassword(user);
+          setOpenMenu(null);
+        }}
+        className="
+          w-full
+          px-4
+          py-2
+          flex
+          items-center
+          gap-2
+          hover:bg-gray-100
+        "
+      >
+        <FaKey />
+        Change Password
+      </button>
+
+      {!isSuperAdmin ||
+      user.id === currentUserId ? (
+
+        <div
+          className="
+            px-4
+            py-2
+            flex
+            items-center
+            gap-2
+            text-green-600
+          "
+        >
+          <FaShieldAlt />
+          Protected
+        </div>
+
+      ) : (
+
+        <button
+          onClick={() => {
+            setUserToDelete(user.id);
+            setShowDeleteModal(true);
+            setOpenMenu(null);
+          }}
+          className="
+            w-full
+            px-4
+            py-2
+            flex
+            items-center
+            gap-2
+            text-red-600
+            hover:bg-red-50
+          "
+        >
+          <FaTrash />
+          Delete User
+        </button>
+
+      )}
+
+    </div>
+
+  )}
+
+</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      
+      <div className="md:hidden space-y-4">
 
+  {users.map((user) => (
+
+    <div
+      key={user.id}
+      className="
+        bg-white
+        rounded-2xl
+        shadow-md
+        p-4
+        relative
+      "
+    >
+
+      {/* Header */}
+      <div className="flex justify-between items-start">
+
+        <div className="flex-1">
+
+          <h3 className="text-lg font-bold">
+            {user.username}
+          </h3>
+
+          <p className="text-sm text-blue-600 font-medium">
+            {user.role}
+          </p>
+
+          <p className="text-sm text-gray-600 break-all mt-1">
+            {user.email || "No Email"}
+          </p>
+
+        </div>
+
+        <button
+          onClick={() =>
+            setOpenMenu(
+              openMenu === user.id
+                ? null
+                : user.id
+            )
+          }
+          className="
+            p-2
+            hover:bg-gray-100
+            rounded-full
+          "
+        >
+          <FaEllipsisV />
+        </button>
+
+      </div>
+
+      {/* Dropdown */}
+      {openMenu === user.id && (
+
+        <div
+          className="
+            mt-4
+            border-t
+            pt-3
+            space-y-2
+          "
+        >
+
+          <button
+            onClick={() => {
+              handleEditUsername(user);
+              setOpenMenu(null);
+            }}
+            className="w-full text-left py-2"
+          >
+            ✏️ Edit Username
+          </button>
+
+          <button
+            onClick={() => {
+              handleEditEmail(user);
+              setOpenMenu(null);
+            }}
+            className="w-full text-left py-2"
+          >
+            📧 Edit Email
+          </button>
+
+          <button
+            onClick={() => {
+              handleChangePassword(user);
+              setOpenMenu(null);
+            }}
+            className="w-full text-left py-2"
+          >
+            🔑 Change Password
+          </button>
+
+          {!isSuperAdmin ||
+          user.id === currentUserId ? (
+
+            <div className="text-green-600 py-2">
+              🛡️ Protected
+            </div>
+
+          ) : (
+
+            <button
+              onClick={() => {
+                setUserToDelete(user.id);
+                setShowDeleteModal(true);
+                setOpenMenu(null);
+              }}
+              className="
+                w-full
+                text-left
+                py-2
+                text-red-600
+              "
+            >
+              🗑️ Delete User
+            </button>
+
+          )}
+
+        </div>
+
+      )}
+
+    </div>   
+
+  ))}
+
+</div>      {/* MOBILE CONTAINER ENDS */}
+    
       {showDeleteModal && (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
 
@@ -351,8 +714,40 @@ const handleEditEmail = async (user) => {
 
     </div>
   )}
+
+
+  <EditEmailModal
+  isOpen={showEditEmailModal}
+  onClose={() =>
+    setShowEditEmailModal(false)
+  }
+  onSave={handleSaveEmail}
+  currentEmail={selectedUser?.email}
+/>
+
+<EditUsernameModal
+  isOpen={showEditUsernameModal}
+  onClose={() =>
+    setShowEditUsernameModal(false)
+  }
+  onSave={handleSaveUsername}
+  currentUsername={
+    selectedUser?.username
+  }
+/>
+
+<ChangePasswordModal
+  isOpen={showPasswordModal}
+  onClose={() =>
+    setShowPasswordModal(false)
+  }
+  onSave={handleSavePassword}
+/>
     </div>
-  );
+   
+ );
 };
+
+
 
 export default Users;

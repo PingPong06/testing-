@@ -90,7 +90,8 @@ const getUsers = async (req, res) => {
       SELECT
         id,
         username,
-        role
+        role,
+        email
       FROM users
       ORDER BY id
       `
@@ -171,6 +172,87 @@ if (Number(req.user.id) !== 1) {
   }
 };
 
+const updateUsername = async (req, res) => {
+  try {
+
+    const { id } = req.params;
+    const { username } = req.body;
+
+    const existingUser = await pool.query(
+      `
+      SELECT *
+      FROM users
+      WHERE username = $1
+      AND id != $2
+      `,
+      [username, id]
+    );
+
+    if (existingUser.rows.length > 0) {
+      return res.status(400).json({
+        message: "Username already exists",
+      });
+    }
+
+    const result = await pool.query(
+      `
+      UPDATE users
+      SET username = $1
+      WHERE id = $2
+      RETURNING *
+      `,
+      [username, id]
+    );
+
+    res.status(200).json({
+      message: "Username updated successfully",
+      user: result.rows[0],
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      message: "Server Error",
+    });
+
+  }
+};
+
+const updateUserPassword = async (req, res) => {
+  try {
+
+    const { id } = req.params;
+    const { password } = req.body;
+
+    const hashedPassword =
+      await bcrypt.hash(password, 10);
+
+    await pool.query(
+      `
+      UPDATE users
+      SET password = $1
+      WHERE id = $2
+      `,
+      [hashedPassword, id]
+    );
+
+    res.status(200).json({
+      message: "Password updated successfully",
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      message: "Server Error",
+    });
+
+  }
+};
+
 const updateUserEmail = async (req, res) => {
 
   try {
@@ -204,9 +286,13 @@ const updateUserEmail = async (req, res) => {
   }
 };
 
+
+
 module.exports = {
   createUser,
 getUsers,
 deleteUser,
+updateUsername,
+updateUserPassword,
 updateUserEmail,
 };

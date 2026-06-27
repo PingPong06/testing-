@@ -100,7 +100,7 @@ useEffect(() => {
   // Edit Handler
 
   const handleEdit = (product) => {
-    console.log(product);
+    // console.log(product);
     setEditingProduct(product);
 
     setShowModal(true);

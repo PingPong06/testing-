@@ -2,10 +2,20 @@ const { Pool } = require("pg");
 require("dotenv").config();
 
 const pool = new Pool({
+  
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false,
-  },
+
+  ssl:
+    process.env.NODE_ENV === "production"
+      ? {
+          rejectUnauthorized: false,
+        }
+      : false,
 });
+
+// console.log(
+//   "Connected to DB:",
+//   process.env.DATABASE_URL
+// );
 
 module.exports = pool;

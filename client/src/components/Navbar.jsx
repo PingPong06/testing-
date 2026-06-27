@@ -180,6 +180,7 @@ function Navbar() {
     {isSuperAdmin && (
   <NavLink
     to="/users"
+    
     className={({ isActive }) =>
       `
       px-3
@@ -361,6 +362,7 @@ const isSuperAdmin = userId === 1; */}
     {isSuperAdmin && (
   <NavLink
     to="/users"
+    onClick={() => setMenuOpen(false)}
     className={({ isActive }) =>
       `
       px-3

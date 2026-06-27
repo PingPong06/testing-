@@ -91,21 +91,21 @@ export const deleteUser = (id) => {
   return API.delete(`/users/${id}`);
 };
 
-export const forgotPassword = (email) =>
-  API.post("/auth/forgot-password", {
-    email,
-  });
+// export const forgotPassword = (email) =>
+//   API.post("/auth/forgot-password", {
+//     email,
+//   });
 
-export const resetPassword = (
-  token,
-  password
-) =>
-  API.post(
-    `/auth/reset-password/${token}`,
-    {
-      password,
-    }
-  );
+// export const resetPassword = (
+//   token,
+//   password
+// ) =>
+//   API.post(
+//     `/auth/reset-password/${token}`,
+//     {
+//       password,
+//     }
+//   );
 
   export const downloadActivityExcel = () =>
   API.get(
@@ -115,10 +115,25 @@ export const resetPassword = (
     }
   );
 
-  export const updateUserEmail = async (id, email) =>
+ export const updateUsername = (
+  id,
+  username
+) =>
   API.put(
-    `/users/${id}/email`,
-    { email }
+    `/users/${id}/username`,
+    { username }
   );
+
+  export const updateUserPassword = (id, password) =>
+  API.put(`/users/${id}/password`, {
+    password,
+  });
+
+export const updateUserEmail = (id, email) =>
+  API.put(`/users/${id}/email`, {
+    email,
+  });
+
+
 
   

@@ -11,10 +11,10 @@ import Navbar from "./components/Navbar";
 import Reports from "./pages/Reports";
 import Login from "./pages/Login";
 import Users from "./pages/Users";
-import ForgotPassword
-from "./pages/ForgotPassword";
-import ResetPassword
-from "./pages/ResetPassword";
+// import ForgotPassword
+// from "./pages/ForgotPassword";
+// import ResetPassword
+// from "./pages/ResetPassword";
 import AdminRoute from "./components/adminRoute";
 
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -102,14 +102,14 @@ function App() {
   }
 />
         
-        <Route
+        {/* <Route
   path="/reset-password/:token"
   element={<ResetPassword />}
 />
         <Route
   path="/forgot-password"
   element={<ForgotPassword />}
-/>
+/> */}
       </Routes>
     </BrowserRouter>
   );
