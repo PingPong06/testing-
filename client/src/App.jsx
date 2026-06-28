@@ -25,34 +25,6 @@ import { App as CapacitorApp } from "@capacitor/app";
 
 function App() {
 
-useEffect(() => {
-
-  // Run only on Android/iOS apps, not in browser
-  if (!Capacitor.isNativePlatform()) {
-    return;
-  }
-
-  const listener = CapacitorApp.addListener(
-    "appStateChange",
-    ({ isActive }) => {
-
-      if (!isActive) {
-
-        localStorage.removeItem("token");
-localStorage.removeItem("role");
-localStorage.removeItem("userId");
-localStorage.removeItem("username");
-
-      }
-
-    }
-  );
-
-  return () => {
-    listener.then((l) => l.remove());
-  };
-
-}, []);
 
 
 const logoutTimer = useRef(null);
@@ -79,7 +51,10 @@ useEffect(() => {
             logoutTimer.current =
               setTimeout(() => {
 
-                localStorage.clear();
+                localStorage.removeItem("token");
+localStorage.removeItem("role");
+localStorage.removeItem("userId");
+localStorage.removeItem("username");
 
                 console.log(
                   "User logged out after 5 minutes."
