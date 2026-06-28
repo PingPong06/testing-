@@ -390,26 +390,25 @@ const canEditPrice =
             
               
 
-            <label className="block mb-1 font-medium">Unit Price (₹)</label>
+            {canEditPrice && (
+  <>
+    <label className="block font-medium mb-1">
+      Unit Price
+    </label>
 
-            <input
-  type="number"
-  name="unit_price"
-  value={formData.unit_price}
-  onChange={handleChange}
-  disabled={!canEditPrice}
-  className={`
-    w-full
-    border
-    p-2
-    rounded
-    ${
-      !canEditPrice
-        ? "bg-gray-100 cursor-not-allowed"
-        : ""
-    }
-  `}
-/>
+    <input
+      type="number"
+      className="w-full border p-2 rounded mb-3"
+      value={editingProduct?.unit_price || ""}
+      onChange={(e) =>
+        setEditingProduct({
+          ...editingProduct,
+          unit_price: e.target.value,
+        })
+      }
+    />
+  </>
+)}
 
             <label className="block mb-1 font-medium">
               Weight Per Unit (kg)
@@ -435,16 +434,21 @@ const canEditPrice =
                 Save
               </button>
 
-              <button
-                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded cursor-pointer"
-                onClick={() => {
-  setShowDeleteModal(false);
-  setUserToDelete(null);
-  setOpenMenu(null);
-}}
-              >
-                Cancel
-              </button>
+             <button
+  onClick={() => {
+    console.log("Cancel clicked");
+
+    setShowModal(false)
+  }}
+  className="
+    px-4
+    py-2
+    rounded-lg
+    bg-gray-200
+  "
+>
+  Cancel
+</button>
             </div>
           </motion.div>
         </div>

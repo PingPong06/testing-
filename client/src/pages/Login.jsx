@@ -23,9 +23,9 @@ const navigate = useNavigate();
     // console.error(error);
 
     const response = await login({
-      username,
-      password,
-    });
+  username: username.trim(),
+  password,
+});
 
     localStorage.setItem(
       "token",

@@ -7,6 +7,14 @@ import {
   downloadActivityExcel,
 } from "../services/api";
 
+import { Capacitor } from "@capacitor/core";
+import {
+  Filesystem,
+  Directory,
+} from "@capacitor/filesystem";
+
+import { FaFileExcel } from "react-icons/fa";
+
 function History() {
 
   const [history, setHistory] = useState([]);
@@ -96,30 +104,62 @@ const sortedHistory =
   });
 
 const handleExcelDownload = async () => {
-
   try {
 
     const response =
       await downloadActivityExcel();
 
-    const url =
-      window.URL.createObjectURL(
-        new Blob([response.data])
-      );
+    // Browser
+    if (!Capacitor.isNativePlatform()) {
 
-    const link =
-      document.createElement("a");
+      const url =
+        window.URL.createObjectURL(
+          new Blob([response.data])
+        );
 
-    link.href = url;
+      const link =
+        document.createElement("a");
 
-    link.download =
-      "activity_history.xlsx";
+      link.href = url;
 
-    document.body.appendChild(link);
+      link.download =
+        "activity_history.xlsx";
 
-    link.click();
+      document.body.appendChild(link);
 
-    link.remove();
+      link.click();
+
+      link.remove();
+
+      return;
+    }
+
+    // Android
+    const bytes =
+      new Uint8Array(response.data);
+
+    let binary = "";
+
+    bytes.forEach((b) => {
+      binary +=
+        String.fromCharCode(b);
+    });
+
+    const base64Data =
+      btoa(binary);
+
+    await Filesystem.writeFile({
+      path:
+        `activity_history_${Date.now()}.xlsx`,
+      data: base64Data,
+      directory:
+        Directory.Documents,
+      recursive: true,
+    });
+
+    toast.success(
+      "Excel saved successfully"
+    );
 
   } catch (error) {
 
@@ -131,6 +171,7 @@ const handleExcelDownload = async () => {
 
   }
 };
+
 return (
 
   <div className="p-4 md:p-8">

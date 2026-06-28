@@ -202,6 +202,18 @@ const updateProduct = async (req, res) => {
 
     const pipeTypeValue = pipe_type.trim().toLowerCase();
 
+    const role = req.user.role;
+
+if (
+  role === "USER" &&
+  req.body.unit_price !== undefined
+) {
+  return res.status(403).json({
+    message:
+      "You are not allowed to edit unit price."
+  });
+}
+
     const result = await pool.query(
       `
       UPDATE products

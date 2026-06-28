@@ -1,12 +1,12 @@
 import axios from "axios";
 
-const API = axios.create({
-  baseURL: "https://pvc-inventory.onrender.com",
-});
-
 // const API = axios.create({
-//   baseURL: "http://localhost:5000",
+//   baseURL: "https://pvc-inventory.onrender.com",
 // });
+
+const API = axios.create({
+  baseURL: "http://localhost:5000",
+});
 
 API.interceptors.request.use(
   (config) => {
@@ -107,13 +107,25 @@ export const resetPassword = (
     }
   );
 
-  export const downloadActivityExcel = () =>
-  API.get(
-    "/inventory/activity-history/excel",
-    {
-      responseType: "blob",
-    }
-  );
+ export const downloadActivityExcel =
+  () =>
+    API.get(
+      "/inventory/activity-history/excel",
+      {
+        responseType:
+          "arraybuffer",
+      }
+    );
+
+export const downloadTransactionExcel =
+  () =>
+    API.get(
+      "/inventory/history/excel",
+      {
+        responseType:
+          "arraybuffer",
+      }
+    );
 
  export const updateUsername = (
   id,

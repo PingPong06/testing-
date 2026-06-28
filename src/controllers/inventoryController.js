@@ -422,6 +422,101 @@ const getInventoryHistory = async (req, res) => {
   }
 };
 
+
+
+const downloadTransactionExcel = async (req, res) => {
+  try {
+
+    const result = await pool.query(`
+      SELECT
+        p.brand,
+        p.size,
+        p.pipe_type,
+        it.transaction_type,
+        it.quantity,
+        it.remarks,
+        it.transaction_date
+      FROM inventory_transactions it
+      JOIN products p
+      ON it.product_id = p.id
+      ORDER BY it.transaction_date DESC
+    `);
+
+    const workbook = new ExcelJS.Workbook();
+
+    const worksheet =
+      workbook.addWorksheet(
+        "Transaction History"
+      );
+
+    worksheet.columns = [
+      {
+        header: "Brand",
+        key: "brand",
+        width: 20,
+      },
+      {
+        header: "Size (mm)",
+        key: "size",
+        width: 15,
+      },
+      {
+        header: "Pipe Type",
+        key: "pipe_type",
+        width: 20,
+      },
+      {
+        header: "Transaction Type",
+        key: "transaction_type",
+        width: 20,
+      },
+      {
+        header: "Quantity",
+        key: "quantity",
+        width: 15,
+      },
+      {
+        header: "Remarks",
+        key: "remarks",
+        width: 30,
+      },
+      {
+        header: "Date",
+        key: "transaction_date",
+        width: 25,
+      },
+    ];
+
+    result.rows.forEach((row) => {
+      worksheet.addRow(row);
+    });
+
+    res.setHeader(
+      "Content-Type",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    );
+
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=transaction_history.xlsx"
+    );
+
+    await workbook.xlsx.write(res);
+
+    res.end();
+
+  } catch (error) {
+
+    console.error(error);
+
+    res.status(500).json({
+      message:
+        "Failed to download transaction history",
+    });
+
+  }
+};
+
 module.exports = {
   stockIn,
   stockOut,
@@ -430,4 +525,5 @@ module.exports = {
   getLowStockItems,
   getInventoryHistory,
   exportActivityHistoryExcel,
+  downloadTransactionExcel,
 };

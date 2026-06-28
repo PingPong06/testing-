@@ -1,5 +1,12 @@
 import { useEffect, useState } from "react";
-import { getTransactionHistory } from "../services/api";
+import { getTransactionHistory, downloadTransactionExcel } from "../services/api";
+import toast from "react-hot-toast";
+import { FaFileExcel } from "react-icons/fa";
+import { Capacitor } from "@capacitor/core";
+import {
+  Filesystem,
+  Directory,
+} from "@capacitor/filesystem";
 
 function TransactionHistory() {
 
@@ -74,6 +81,75 @@ const sortedTransactions =
     }
   });
 
+  const handleExcelDownload = async () => {
+  try {
+
+    const response =
+      await downloadTransactionExcel();
+
+    // Browser
+    if (!Capacitor.isNativePlatform()) {
+
+      const url =
+        window.URL.createObjectURL(
+          new Blob([response.data])
+        );
+
+      const link =
+        document.createElement("a");
+
+      link.href = url;
+
+      link.download =
+        "transaction_history.xlsx";
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      link.remove();
+
+      return;
+    }
+
+    // Android
+    const bytes =
+      new Uint8Array(response.data);
+
+    let binary = "";
+
+    bytes.forEach((b) => {
+      binary +=
+        String.fromCharCode(b);
+    });
+
+    const base64Data =
+      btoa(binary);
+
+    await Filesystem.writeFile({
+      path:
+        `transaction_history_${Date.now()}.xlsx`,
+      data: base64Data,
+      directory:
+        Directory.Documents,
+      recursive: true,
+    });
+
+    toast.success(
+      "Excel saved successfully"
+    );
+
+  } catch (error) {
+
+    console.error(error);
+
+    toast.error(
+      "Failed to download Excel"
+    );
+
+  }
+};
+
   return (
   <div className="p-8">
 
@@ -131,7 +207,21 @@ const sortedTransactions =
         <option value="oldest">Oldest First</option>
       </select>
 
-    </div>
+      <button
+  onClick={handleExcelDownload}
+  className="
+  bg-green-600
+  hover:bg-green-700
+  text-white
+  px-4
+  py-2
+  rounded-lg
+  cursor-pointer
+  "
+>
+  Export Excel
+</button>
+  </div>
 
     <div className="hidden md:block bg-white rounded-xl shadow-md">
 
