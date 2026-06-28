@@ -6,6 +6,10 @@ import { downloadReportExcel } from "../services/api";
 
 import { FaFilePdf, FaFileExcel } from "react-icons/fa";
 
+import { Capacitor } from "@capacitor/core";
+import { Filesystem, Directory } from "@capacitor/filesystem";
+import { Share } from "@capacitor/share";
+
 function Reports() {
   const [products, setProducts] = useState([]);
 
@@ -122,23 +126,48 @@ function Reports() {
 
       const response = await downloadReportPDF(filters);
 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      if (!Capacitor.isNativePlatform()) {
+
+      const url = window.URL.createObjectURL(
+        new Blob([response.data])
+      );
 
       const link = document.createElement("a");
 
       link.href = url;
 
-      link.setAttribute("download", "inventory-report.pdf");
-
-      document.body.appendChild(link);
+      link.download = "inventory-report.pdf";
 
       link.click();
 
-      link.remove();
-    } catch (error) {
-      console.error(error);
+      return;
     }
-  };
+
+     // Android App
+    const base64 = btoa(
+      new Uint8Array(response.data)
+        .reduce(
+          (data, byte) =>
+            data + String.fromCharCode(byte),
+          ""
+        )
+    );
+
+    const file = await Filesystem.writeFile({
+      path: "inventory-report.pdf",
+      data: base64,
+      directory: Directory.Documents,
+    });
+
+    await Share.share({
+      title: "Inventory Report",
+      url: file.uri,
+    });
+
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   const handleDownloadExcel = async () => {
     try {
@@ -158,25 +187,38 @@ function Reports() {
         order,
       };
 
-      const response = await downloadReportExcel(filters);
+      if (!Capacitor.isNativePlatform()) {
 
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const url = window.URL.createObjectURL(
+        new Blob([response.data])
+      );
 
       const link = document.createElement("a");
 
       link.href = url;
 
-      link.setAttribute("download", "inventory-report.xlsx");
-
-      document.body.appendChild(link);
+      link.download = "inventory-report.xlsx";
 
       link.click();
 
-      link.remove();
-    } catch (error) {
-      console.error(error);
+      return;
     }
-  };
+
+    const file = await Filesystem.writeFile({
+      path: "inventory-report.xlsx",
+      data: base64,
+      directory: Directory.Documents,
+    });
+
+    await Share.share({
+      title: "Inventory Excel Report",
+      url: file.uri,
+    });
+
+  } catch (error) {
+    console.error(error);
+  }
+};
 
   return (
     <div className="p-8">

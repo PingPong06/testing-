@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-
+import Select from "react-select";
 import SearchBar from "../components/SearchBar";
 import ProductTable from "../components/ProductTable";
 import { login } from "../services/api";
@@ -15,7 +15,7 @@ import {
   stockOut,
 } from "../services/api";
 
-import Select from "react-select";
+
 
 function Inventory() {
   // const [selectedProductId, setSelectedProductId] = useState(null);
@@ -44,7 +44,7 @@ useEffect(() => {
 
   const [stockAction, setStockAction] = useState("");
 
-  // const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const [quantity, setQuantity] = useState("");
 
@@ -54,11 +54,7 @@ useEffect(() => {
   const [selectedProductId, setSelectedProductId] = useState(null);
 
 
-  const displayProducts = selectedProductId
-  ? products.filter(
-      (product) => product.id === selectedProductId
-    )
-  : products;
+  const displayProducts = products;
 
  const fetchProducts = async () => {
   try {
@@ -163,14 +159,15 @@ useEffect(() => {
       // console.log(data);
 
       if (stockAction === "IN") {
-        toast.success("Stock Added");
         await stockIn(data);
+        toast.success("Stock Added");
 
         setQuantity("");
         setRemarks("");
       } else {
-        toast.success("Stock Removed");
+        
         await stockOut(data);
+        toast.success("Stock Removed");
 
         setQuantity("");
         setRemarks("");
@@ -184,10 +181,21 @@ useEffect(() => {
 
       fetchProducts();
     } catch (error) {
-      console.error(error);
 
-      toast.error(error.response?.data?.message || "Transaction Failed");
-    }
+  console.error("FULL ERROR:", error);
+
+  console.error(
+    "RESPONSE:",
+    error.response?.data
+  );
+
+  toast.error(
+    error.response?.data?.message ||
+    error.message ||
+    "Transaction Failed"
+  );
+
+}
   };
 
   return (
@@ -415,7 +423,11 @@ useEffect(() => {
 
               <button
                 className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded cursor-pointer"
-                onClick={() => setShowModal(false)}
+                onClick={() => {
+  setShowDeleteModal(false);
+  setUserToDelete(null);
+  setOpenMenu(null);
+}}
               >
                 Cancel
               </button>
@@ -528,7 +540,9 @@ useEffect(() => {
 
               <div className="flex justify-end gap-3">
                 <button
-                  onClick={() => setShowDeleteModal(false)}
+                  onClick={() => {setShowDeleteModal(false);
+                     setSelectedProductId(null);
+                  }}
                   className="
             px-4
             py-2
