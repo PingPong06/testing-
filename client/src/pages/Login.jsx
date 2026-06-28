@@ -32,7 +32,7 @@ const navigate = useNavigate();
       response.data.token
     );
 
-    navigate("/dashboard");
+    
 
     localStorage.setItem(
   "userId",
@@ -50,10 +50,11 @@ localStorage.setItem(
 );
 
   toast.success("Login Successful");
+  navigate("/dashboard");
 
-setTimeout(() => {
-  window.location.href = "/";
-}, 1500);
+// setTimeout(() => {
+//   window.location.href = "/";
+// }, 1500);
   } catch (error) {
 
     toast.error(

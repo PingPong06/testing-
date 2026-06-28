@@ -33,10 +33,10 @@ app.use(
 //   res.json({ message: "Backend is working" });
 // });
 
-console.log(
-  "FRONTEND_URL:",
-  process.env.FRONTEND_URL
-);
+// console.log(
+//   "FRONTEND_URL:",
+//   process.env.FRONTEND_URL
+// );
 
 app.use(express.json());
 
