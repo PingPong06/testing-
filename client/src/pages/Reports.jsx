@@ -9,6 +9,7 @@ import { FaFilePdf, FaFileExcel } from "react-icons/fa";
 import { Capacitor } from "@capacitor/core";
 import { Filesystem, Directory } from "@capacitor/filesystem";
 import { Share } from "@capacitor/share";
+import toast from "react-hot-toast";
 
 function Reports() {
   const [products, setProducts] = useState([]);
@@ -109,24 +110,23 @@ function Reports() {
   };
 
   const handleDownloadPDF = async () => {
-    try {
-      const filters = {
-        brand: selectedBrand?.value || "",
-        pipeType: selectedPipeType?.value || "",
-        size: selectedSize?.value || "",
-        transactionType:
-          transactionType?.value || "",
+  try {
 
-        fromDate,
-        toDate,
+    const filters = {
+      brand: selectedBrand?.value || "",
+      pipeType: selectedPipeType?.value || "",
+      size: selectedSize?.value || "",
+      transactionType: transactionType?.value || "",
+      fromDate,
+      toDate,
+      sortBy,
+      order,
+    };
 
-        sortBy,
-        order,
-      };
+    const response = await downloadReportPDF(filters);
 
-      const response = await downloadReportPDF(filters);
-
-      if (!Capacitor.isNativePlatform()) {
+    // Browser
+    if (!Capacitor.isNativePlatform()) {
 
       const url = window.URL.createObjectURL(
         new Blob([response.data])
@@ -138,56 +138,65 @@ function Reports() {
 
       link.download = "inventory-report.pdf";
 
+      document.body.appendChild(link);
+
       link.click();
+
+      link.remove();
 
       return;
     }
 
-     // Android App
-    const base64 = btoa(
-      new Uint8Array(response.data)
-        .reduce(
-          (data, byte) =>
-            data + String.fromCharCode(byte),
-          ""
-        )
+    // Android
+    const bytes = new Uint8Array(response.data);
+
+    let binary = "";
+
+    bytes.forEach((b) => {
+      binary += String.fromCharCode(b);
+    });
+
+    const base64Data = btoa(binary);
+
+    await Filesystem.writeFile({
+      path: `inventory-report-${Date.now()}.pdf`,
+      data: base64Data,
+      directory: Directory.Documents,
+      recursive: true,
+    });
+
+    toast.success(
+      "PDF saved to Documents folder"
     );
 
-    const file = await Filesystem.writeFile({
-      path: "inventory-report.pdf",
-      data: base64,
-      directory: Directory.Documents,
-    });
-
-    await Share.share({
-      title: "Inventory Report",
-      url: file.uri,
-    });
-
   } catch (error) {
+
     console.error(error);
+
+    toast.error("PDF download failed");
+
   }
 };
 
   const handleDownloadExcel = async () => {
-    try {
-      const filters = {
-        brand: selectedBrand?.value || "",
+  try {
 
-        pipeType: selectedPipeType?.value || "",
+    const filters = {
+      brand: selectedBrand?.value || "",
+      pipeType: selectedPipeType?.value || "",
+      size: selectedSize?.value || "",
+      transactionType: transactionType?.value || "",
+      fromDate,
+      toDate,
+      sortBy,
+      order,
+    };
 
-        size: selectedSize?.value || "",
+    const response =
+      await downloadReportExcel(filters);
 
-        transactionType:
-          transactionType?.value || "",
-
-        fromDate,
-        toDate,
-        sortBy,
-        order,
-      };
-
-      if (!Capacitor.isNativePlatform()) {
+    // Browser
+    if (!Capacitor.isNativePlatform()) {
 
       const url = window.URL.createObjectURL(
         new Blob([response.data])
@@ -199,24 +208,45 @@ function Reports() {
 
       link.download = "inventory-report.xlsx";
 
+      document.body.appendChild(link);
+
       link.click();
+
+      link.remove();
 
       return;
     }
 
-    const file = await Filesystem.writeFile({
-      path: "inventory-report.xlsx",
-      data: base64,
-      directory: Directory.Documents,
+    // Android
+    const bytes = new Uint8Array(response.data);
+
+    let binary = "";
+
+    bytes.forEach((b) => {
+      binary += String.fromCharCode(b);
     });
 
-    await Share.share({
-      title: "Inventory Excel Report",
-      url: file.uri,
+    const base64Data = btoa(binary);
+
+    await Filesystem.writeFile({
+      path: `inventory-report-${Date.now()}.xlsx`,
+      data: base64Data,
+      directory: Directory.Documents,
+      recursive: true,
     });
+
+    toast.success(
+      "Excel file saved to Documents folder"
+    );
 
   } catch (error) {
+
     console.error(error);
+
+    toast.error(
+      "Excel download failed"
+    );
+
   }
 };
 

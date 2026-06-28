@@ -68,6 +68,12 @@ useEffect(() => {
     }
   };
 
+  const role = localStorage.getItem("role");
+
+const canEditPrice =
+  role === "ADMIN" ||
+  role === "SUPER_ADMIN";
+
   // handle delete
   // console.log("selectedProductId =", selectedProductId);
   const handleDelete = async () => {
@@ -381,21 +387,29 @@ useEffect(() => {
                 })
               }
             />
+            
+              
 
             <label className="block mb-1 font-medium">Unit Price (₹)</label>
 
             <input
-              type="number"
-              step="0.01"
-              className="w-full border p-2 rounded mb-3"
-              value={editingProduct?.unit_price || ""}
-              onChange={(e) =>
-                setEditingProduct({
-                  ...editingProduct,
-                  unit_price: e.target.value,
-                })
-              }
-            />
+  type="number"
+  name="unit_price"
+  value={formData.unit_price}
+  onChange={handleChange}
+  disabled={!canEditPrice}
+  className={`
+    w-full
+    border
+    p-2
+    rounded
+    ${
+      !canEditPrice
+        ? "bg-gray-100 cursor-not-allowed"
+        : ""
+    }
+  `}
+/>
 
             <label className="block mb-1 font-medium">
               Weight Per Unit (kg)

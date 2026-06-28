@@ -64,13 +64,13 @@ export const getReportData = (filters) =>
   export const downloadReportPDF = (filters) =>
   API.get("/reports/pdf", {
     params: filters,
-    responseType: "blob",
+    responseType: "arraybuffer",
   });
 
   export const downloadReportExcel = (filters) =>
   API.get("/reports/excel", {
     params: filters,
-    responseType: "blob",
+    responseType: "arraybuffer",
   });
 
   export const login = (data) =>
