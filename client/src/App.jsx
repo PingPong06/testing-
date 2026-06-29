@@ -35,76 +35,77 @@ useEffect(() => {
     return;
   }
 
+  let listener;
+
   const setupListener = async () => {
 
-    const listener =
-      await CapacitorApp.addListener(
-        "appStateChange",
-        ({ isActive }) => {
+    listener = await CapacitorApp.addListener(
+      "appStateChange",
+      ({ isActive }) => {
 
-          if (!isActive) {
+        if (!isActive) {
 
-            console.log(
-              "App in background. Logout in 5 minutes..."
+          localStorage.setItem(
+            "backgroundTime",
+            Date.now().toString()
+          );
+
+          console.log(
+            "App moved to background"
+          );
+
+        } else {
+
+          const backgroundTime =
+            localStorage.getItem(
+              "backgroundTime"
             );
 
-            logoutTimer.current =
-              setTimeout(() => {
+          if (backgroundTime) {
 
-                localStorage.removeItem("token");
-localStorage.removeItem("role");
-localStorage.removeItem("userId");
-localStorage.removeItem("username");
+            const diff =
+              Date.now() -
+              Number(backgroundTime);
 
-                console.log(
-                  "User logged out after 5 minutes."
-                );
+            if (diff >= 5 * 60 * 1000) {
 
-              }, 5 * 60 * 1000);
-
-          } else {
-
-            if (logoutTimer.current) {
-
-              clearTimeout(
-                logoutTimer.current
-              );
-
-              logoutTimer.current = null;
+              localStorage.removeItem("token");
+              localStorage.removeItem("role");
+              localStorage.removeItem("userId");
+              localStorage.removeItem("username");
 
               console.log(
-                "Logout cancelled."
+                "User logged out after 5 minutes"
+              );
+
+              window.location.href = "/login";
+
+            } else {
+
+              console.log(
+                "User returned within 5 minutes"
               );
 
             }
 
+            localStorage.removeItem(
+              "backgroundTime"
+            );
           }
 
         }
-      );
 
-    return listener;
+      }
+    );
 
   };
 
-  let listener;
-
-  setupListener().then((l) => {
-    listener = l;
-  });
+  setupListener();
 
   return () => {
-
-    if (logoutTimer.current) {
-      clearTimeout(
-        logoutTimer.current
-      );
-    }
-
     if (listener) {
       listener.remove();
     }
-
   };
 
 }, []);
