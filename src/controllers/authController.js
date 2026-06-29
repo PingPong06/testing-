@@ -213,20 +213,6 @@ const { data, error } =
     `,
   });
 
-  if (error) {
-  console.error(error);
-
-  return res.status(500).json({
-    message:
-      "Failed to send email",
-  });
-}
-
-console.log(
-  "Reset email sent:",
-  data
-);
-
   console.log(
       "Reset email sent successfully!"
     );

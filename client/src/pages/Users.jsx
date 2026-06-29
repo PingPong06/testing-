@@ -20,15 +20,11 @@ const Users = () => {
 
   const role = localStorage.getItem("role");
 
-// if (role !== "ADMIN") {
-//   return <Navigate to="/" />;
-// }
-
   const [users, setUsers] = useState([]);
 
   const [formData, setFormData] = useState({
     username: "",
-    email: "",
+    // email: "",
     password: "",
     role: "USER",
   });
@@ -130,7 +126,7 @@ const [
 
       setFormData({
         username: "",
-        Email:"",
+        // Email:"",
         password: "",
         role: "USER",
       });
@@ -283,14 +279,15 @@ async (newPassword) => {
             className="border p-2 rounded"
           />
 
-          <input
-  type="email"
-  name="email"
-  placeholder="Email"
-  value={formData.email}
-  onChange={handleChange}
-  className="w-full border p-3 rounded"
-/>
+          {/* {isSuperAdmin && 
+          (<input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            className="w-full border p-3 rounded"
+          />)} */}
 
           <input
             type="password"
@@ -341,7 +338,7 @@ async (newPassword) => {
 
               <th className="text-left p-3">Role</th>
 
-              <th className="text-left p-3">e-mail</th>
+              {/* <th className="text-left p-3">e-mail</th> */}
 
               <th className="p-3 w-12"></th>
             </tr>
@@ -357,9 +354,9 @@ async (newPassword) => {
 
                 <td className="p-3">{user.role}</td>
 
-                <td className="p-3">
-  {user.email || "No Email"}
-</td>
+                {isSuperAdmin && (
+  <td>{user.email}</td>
+)}
 
               <td className="relative p-3">
 
@@ -526,17 +523,21 @@ async (newPassword) => {
 
         <div className="flex-1">
 
-          <h3 className="text-lg font-bold">
-            {user.username}
-          </h3>
+          <div>
+  <h3 className="font-bold">
+    {user.username}
+  </h3>
 
-          <p className="text-sm text-blue-600 font-medium">
-            {user.role}
-          </p>
+  {user.role === "SUPER_ADMIN" && user.email && (
+    <p className="text-sm text-red-600">
+      {user.email}
+    </p>
+  )}
 
-          <p className="text-sm text-gray-600 break-all mt-1">
-            {user.email || "No Email"}
-          </p>
+  <p className="text-blue-600 text-sm">
+    {user.role}
+  </p>
+</div>
 
         </div>
 
@@ -581,15 +582,22 @@ async (newPassword) => {
             ✏️ Edit Username
           </button>
 
-          <button
-            onClick={() => {
-              handleEditEmail(user);
-              setOpenMenu(null);
-            }}
-            className="w-full text-left py-2"
-          >
-            📧 Edit Email
-          </button>
+          {user.role === "SUPER_ADMIN" && (
+  <button
+    onClick={() => handleEditEmail(user)}
+    className="
+      flex
+      items-center
+      gap-2
+      text-left
+      w-full
+      py-2
+      hover:text-blue-600
+    "
+  >
+    📧 Edit Email
+  </button>
+)}
 
           <button
             onClick={() => {

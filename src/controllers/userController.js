@@ -10,9 +10,9 @@ if (req.user.id !== 1) {
 }
 
   try {
-    const { username, email, password, role } = req.body;
+    const { username, password, email, role } = req.body;
 
-    if (!username || !email || !password || !role) {
+    if (!username || !password || !role) {
       return res.status(400).json({
         message: "All fields are required",
       });
@@ -34,14 +34,14 @@ if (req.user.id !== 1) {
       });
     }
 
-    const emailRegex =
-  /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//     const emailRegex =
+//   /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-if (!emailRegex.test(email)) {
-  return res.status(400).json({
-    message: "Invalid email",
-  });
-}
+// if (!emailRegex.test(email)) {
+//   return res.status(400).json({
+//     message: "Invalid email",
+//   });
+// }
 
     const hashedPassword =
       await bcrypt.hash(password, 10);
@@ -51,11 +51,10 @@ if (!emailRegex.test(email)) {
       INSERT INTO users
       (
         username,
-        email,
         password,
         role
       )
-      VALUES ($1,$2,$3,$4)
+      VALUES ($1,$2,$3)
       RETURNING
       id,
       username,
@@ -63,7 +62,6 @@ if (!emailRegex.test(email)) {
       `,
       [
         username.trim(),
-        email,
         hashedPassword,
         role,
       ]
@@ -90,8 +88,8 @@ const getUsers = async (req, res) => {
       SELECT
         id,
         username,
-        role,
-        email
+        email,  
+        role
       FROM users
       ORDER BY id
       `
@@ -254,11 +252,15 @@ const updateUserPassword = async (req, res) => {
 };
 
 const updateUserEmail = async (req, res) => {
-
   try {
 
-    const { id } = req.params;
+    if (Number(req.user.id) !== 1) {
+      return res.status(403).json({
+        message: "Only Super Admin can update email",
+      });
+    }
 
+    const { id } = req.params;
     const { email } = req.body;
 
     const result = await pool.query(
@@ -268,24 +270,21 @@ const updateUserEmail = async (req, res) => {
       WHERE id = $2
       RETURNING *
       `,
-      [email, id]
+      [email.trim(), id]
     );
 
-    res.status(200).json(
-      result.rows[0]
-    );
+    res.status(200).json(result.rows[0]);
 
   } catch (error) {
 
     console.error(error);
 
     res.status(500).json({
-      message:
-        "Failed to update email",
+      message: "Failed to update email",
     });
+
   }
 };
-
 
 
 module.exports = {
