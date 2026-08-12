@@ -15,20 +15,17 @@ function ChangePasswordModal({
 
   if (!isOpen) return null;
 
-  const handleSubmit = () => {
-
+const handleSubmit = () => {
     if (password !== confirmPassword) {
-      toast.error(
-        "Passwords do not match"
-      );
+        toast.error("Passwords do not match");
+        return;
     }
 
     onSave(password);
 
     setPassword("");
     setConfirmPassword("");
-  };
-
+};
   return (
     <div
       className="

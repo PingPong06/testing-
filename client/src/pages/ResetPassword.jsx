@@ -16,8 +16,11 @@ function ResetPassword() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-   
-toast.success("Passwords do not match");
+   console.log("Token from URL:", token);
+if (password !== confirmPassword) {
+    toast.error("Passwords do not match");
+    return;
+}
 
     try {
       const response =
@@ -27,12 +30,14 @@ toast.success("Passwords do not match");
 
       navigate("/login");
 
-    } catch (error) {
+    }catch (error) {
+    console.log("Reset password error:", error);
+    console.log("Response:", error.response?.data);
 
-      
-      toast.success("Password reset failed");
-
-    }
+    toast.error(
+        error.response?.data?.message || "Password reset failed"
+    );
+}
   };
 
   return (

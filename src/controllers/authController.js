@@ -15,6 +15,12 @@ const login = async (req, res) => {
 
     const { username, password } = req.body;
 
+
+console.log("Password received during reset:", password);
+
+    console.log("Login username:", username);
+        console.log("Login password received:", password);
+
     const result = await pool.query(
       `
       SELECT *
@@ -24,6 +30,8 @@ const login = async (req, res) => {
       [username]
     );
 
+    console.log("Users found:", result.rows.length)
+
     if (result.rows.length === 0) {
       return res.status(401).json({
         message: "Invalid Credentials",
@@ -32,15 +40,25 @@ const login = async (req, res) => {
 
     const user = result.rows[0];
 
-console.log(
-  "Role from DB:",
-  user.role
+    const testPassword = await bcrypt.compare(
+    password,
+    user.password
 );
+
+console.log("Testing password:", testPassword);
+
+
+console.log("Role from DB:", user.role);
+console.log("Hash retrieved during login:", user.password);
+console.log("Hash length:", user.password?.length);
+
 
 const isMatch = await bcrypt.compare(
   password,
   user.password
 );
+
+console.log("Password match:", isMatch);
 
     if (!isMatch) {
       return res.status(401).json({
@@ -94,10 +112,10 @@ const forgotPassword = async (req, res) => {
       `,
       [email]
     );
-//   console.log(
-//   "Users found:",
-//   userResult.rows.length
-// );
+  console.log(
+  "Users found:",
+  userResult.rows.length
+);
 
     if (userResult.rows.length === 0) {
       return res.status(404).json({
@@ -107,12 +125,12 @@ const forgotPassword = async (req, res) => {
 
     const user = userResult.rows[0];
 
-        if (user.role !== "SUPER_ADMIN") {
-  return res.status(403).json({
-    message:
-      "Password reset is available only for the administrator.",
-  });
-}
+//         if (user.role !== "SUPER_ADMIN") {
+//   return res.status(403).json({
+//     message:
+//       "Password reset is available only for the administrator.",
+//   });
+// }
 
   const adminEmail = user.email;
 
@@ -138,6 +156,7 @@ const forgotPassword = async (req, res) => {
       `,
       [resetToken, expiry, user.id]
     );
+    console.log("Reset token stored for user:", user.email);
 
 //     console.log("EMAIL_USER:", process.env.EMAIL_USER);
 // console.log(
@@ -189,29 +208,44 @@ const forgotPassword = async (req, res) => {
   //   );
 
 
-const { data, error } =
-  await resend.emails.send({
+// const { data, error } =
+//   await resend.emails.send({
 
+//     from: "onboarding@resend.dev",
+
+//     to: adminEmail,
+
+//     subject: "PVC Inventory Password Reset",
+
+//     html: `
+//       <h3>PVC Inventory Password Reset</h3>
+
+//       <p>Click the link below:</p>
+
+//       <a href="${resetLink}">
+//         Reset Password
+//       </a>
+
+//       <p>
+//         This link expires in 15 minutes.
+//       </p>
+//     `,
+//   });
+
+const { data, error } = await resend.emails.send({
     from: "onboarding@resend.dev",
-
     to: adminEmail,
-
     subject: "PVC Inventory Password Reset",
-
     html: `
-      <h3>PVC Inventory Password Reset</h3>
-
-      <p>Click the link below:</p>
-
-      <a href="${resetLink}">
-        Reset Password
-      </a>
-
-      <p>
-        This link expires in 15 minutes.
-      </p>
+        <h3>PVC Inventory Password Reset</h3>
+        <p>Click the link below:</p>
+        <a href="${resetLink}">Reset Password</a>
+        <p>This link expires in 15 minutes.</p>
     `,
-  });
+});
+
+console.log("Resend data:", data);
+console.log("Resend error:", error);
 
   console.log(
       "Reset email sent successfully!"
@@ -236,8 +270,9 @@ const resetPassword = async (req, res) => {
   try {
 
     const { token } = req.params;
-
+    console.log("Token received by backend:", req.params.token);
     const { password } = req.body;
+    console.log("Token being searched:", req.params.token);
 
     const result = await pool.query(
       `
@@ -269,7 +304,13 @@ const resetPassword = async (req, res) => {
     const hashedPassword =
       await bcrypt.hash(password, 10);
 
-    await pool.query(
+      console.log("Generated hash:", hashedPassword);
+
+const testMatch = await bcrypt.compare(password, hashedPassword);
+
+console.log("Password vs generated hash:", testMatch);
+
+   const updateResult = await pool.query(
       `
       UPDATE users
       SET
@@ -280,6 +321,19 @@ const resetPassword = async (req, res) => {
       `,
       [hashedPassword, user.id]
     );
+
+    console.log("Password update rows:", updateResult.rowCount);
+
+    const checkResult = await pool.query(
+    `
+    SELECT id, username, password
+    FROM users
+    WHERE id = $1
+    `,
+    [user.id]
+);
+
+console.log("Hash immediately after UPDATE:", checkResult.rows[0].password);
 
     res.status(200).json({
       message: "Password reset successful",
