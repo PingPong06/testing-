@@ -9,29 +9,29 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
-pool.query("SELECT current_database(), current_user")
-  .then(result => {
-    console.log("Database:", result.rows[0]);
-  })
-  .catch(err => {
-    console.error("Database connection check failed:", err);
-  });
+// pool.query("SELECT current_database(), current_user")
+//   .then(result => {
+//     console.log("Database:", result.rows[0]);
+//   })
+//   .catch(err => {
+//     console.error("Database connection check failed:", err);
+//   });
 
-// const pool = new Pool({
+const pool = new Pool({
   
-//   connectionString: process.env.DATABASE_URL,
+  connectionString: process.env.DATABASE_URL,
 
-//   ssl:
-//     process.env.NODE_ENV === "production"
-//       ? {
-//           rejectUnauthorized: false,
-//         }
-//       : false,
-// });
+  ssl:
+    process.env.NODE_ENV === "production"
+      ? {
+          rejectUnauthorized: false,
+        }
+      : false,
+});
 
-// console.log(
-//   "Connected to DB:",
-//   process.env.DATABASE_URL
-// );
+console.log(
+  "Connected to DB:",
+  process.env.DATABASE_URL
+);
 
 module.exports = pool;
