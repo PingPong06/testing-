@@ -16,10 +16,10 @@ const login = async (req, res) => {
     const { username, password } = req.body;
 
 
-console.log("Password received during reset:", password);
+// console.log("Password received during reset:", password);
 
-    console.log("Login username:", username);
-        console.log("Login password received:", password);
+    // console.log("Login username:", username);
+    //     console.log("Login password received:", password);
 
     const result = await pool.query(
       `
@@ -102,7 +102,19 @@ const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
-    // console.log("Email received:", email);
+    console.log("Email received:", email);
+
+    const dbInfo = await pool.query(`
+  SELECT current_database(), current_user
+`);
+
+console.log("Connected DB:", dbInfo.rows[0]);
+
+const allUsers = await pool.query(`
+  SELECT id, username, email FROM users
+`);
+
+console.log("All users in connected database:", allUsers.rows);
 
     const userResult = await pool.query(
       `
